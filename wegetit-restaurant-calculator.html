@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WeGetIt — Restaurant Cost Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:#080808; --white:#f4f1ec; --accent:#e8441a; --gold:#f5a623;
+  --teal:#3dbfb8; --grey:#141414; --mid:#1e1e1e; --border:#2a2a2a;
+  --muted:#555; --dim:#888; --blue:#4a90d9;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;}
+.page{max-width:840px;margin:0 auto;padding:32px 20px 80px;}
+
+/* HEADER */
+.hdr{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:28px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:3px;color:var(--white);line-height:1;}
+.logo span{color:var(--accent);}
+.vtoggle{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);cursor:pointer;padding:8px 14px;border:1px solid var(--border);background:none;transition:all 0.2s;}
+.vtoggle:hover{color:var(--white);border-color:var(--muted);}
+
+/* SECTION LABELS */
+.slbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2.5px;color:var(--teal);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.slbl::after{content:'';flex:1;height:1px;background:var(--border);}
+.slbl.gold{color:var(--gold);}
+.slbl.red{color:var(--accent);}
+.stitle{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;margin-bottom:6px;}
+.ssub{font-size:13px;color:var(--dim);margin-bottom:18px;line-height:1.65;max-width:640px;}
+
+/* CHECKLIST */
+.checklist{background:var(--grey);border:1px solid var(--border);padding:22px 24px;margin-bottom:28px;}
+.cl-title{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:14px;}
+.cl-items{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;}
+@media(max-width:560px){.cl-items{grid-template-columns:1fr;}}
+.cl-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--dim);line-height:1.5;cursor:pointer;user-select:none;}
+.cl-item input[type="checkbox"]{display:none;}
+.cl-box{width:16px;height:16px;border:1px solid var(--border);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all 0.15s;}
+.cl-item.checked .cl-box{background:var(--gold);border-color:var(--gold);color:var(--black);}
+.cl-item.checked{color:var(--white);}
+
+/* PLATFORM SELECTOR */
+.platform-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
+@media(max-width:560px){.platform-cards{grid-template-columns:1fr;}}
+.pcard{background:var(--grey);border:2px solid var(--border);padding:18px 16px;cursor:pointer;transition:all 0.18s;text-align:center;user-select:none;}
+.pcard:hover{border-color:var(--muted);}
+.pcard.active-dd{border-color:var(--blue);background:rgba(74,144,217,0.07);}
+.pcard.active-ue{border-color:var(--accent);background:rgba(232,68,26,0.07);}
+.pcard.active-gh{border-color:var(--gold);background:rgba(245,166,35,0.07);}
+.pcard-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;margin-bottom:4px;}
+.pcard.active-dd .pcard-name{color:var(--blue);}
+.pcard.active-ue .pcard-name{color:var(--accent);}
+.pcard.active-gh .pcard-name{color:var(--gold);}
+.pcard-rates{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;}
+
+/* TIER OPTIONS */
+.tier-section{display:none;background:var(--mid);border:1px solid var(--border);padding:16px 18px;margin-bottom:10px;}
+.tier-section.show{display:block;}
+.tier-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;}
+.tier-lbl.dd{color:var(--blue);}
+.tier-lbl.ue{color:var(--accent);}
+.tier-lbl.gh{color:var(--gold);}
+.tier-opts{display:flex;gap:8px;flex-wrap:wrap;}
+.tier-opt{font-size:14px;padding:10px 18px;border:1px solid var(--border);cursor:pointer;color:var(--dim);transition:all 0.15s;user-select:none;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.5px;}
+.tier-opt:hover{color:var(--white);}
+.tier-opt.sel-dd{border-color:var(--blue);color:var(--blue);background:rgba(74,144,217,0.08);}
+.tier-opt.sel-ue{border-color:var(--accent);color:var(--accent);background:rgba(232,68,26,0.08);}
+.tier-opt.sel-gh{border-color:var(--gold);color:var(--gold);background:rgba(245,166,35,0.08);}
+
+/* EXTRA COSTS */
+.extra-costs{display:none;margin-top:18px;}
+.extra-costs.show{display:block;}
+.cost-q{margin-bottom:18px;}
+.cq-lbl{font-size:14px;font-weight:500;color:var(--white);margin-bottom:6px;line-height:1.5;}
+.cq-hint{font-size:11.5px;color:var(--muted);margin-bottom:8px;font-style:italic;}
+.yn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.yn-btn{padding:9px 20px;border:1px solid var(--border);cursor:pointer;font-size:13px;color:var(--dim);background:none;transition:all 0.15s;user-select:none;font-family:'DM Mono',monospace;letter-spacing:0.5px;}
+.yn-btn.sel{border-color:var(--teal);color:var(--teal);background:rgba(61,191,184,0.08);}
+.amt-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.amt-row.hidden{display:none;}
+.ipre{font-size:14px;color:var(--muted);font-family:'DM Mono',monospace;}
+input[type="number"]{background:var(--mid);border:1px solid var(--border);color:var(--white);font-family:'DM Sans',sans-serif;font-size:16px;padding:11px 14px;outline:none;-webkit-appearance:none;}
+input[type="number"]:focus{border-color:var(--teal);}
+
+/* STEP 2 TABLE */
+.orders-table-wrap{overflow-x:auto;margin-top:12px;}
+.orders-table{width:100%;border-collapse:collapse;}
+.orders-table th{padding:11px 14px;background:var(--mid);font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;border-bottom:1px solid var(--border);text-align:center;}
+.orders-table th.dd{color:var(--blue);}
+.orders-table th.ue{color:var(--accent);}
+.orders-table th.gh{color:var(--gold);}
+.orders-table th.row-lbl{text-align:left;color:var(--muted);}
+.orders-table td{padding:10px 14px;border-bottom:1px solid var(--border);text-align:center;font-size:13px;color:var(--dim);}
+.orders-table td.row-lbl{text-align:left;font-size:13px;color:var(--white);font-weight:500;line-height:1.4;}
+.orders-table td.row-hint{font-size:11px;color:var(--muted);font-style:italic;}
+.orders-table input[type="number"]{width:110px;font-size:15px;padding:10px 12px;text-align:center;}
+.orders-table tr.pickup-row td{background:rgba(245,166,35,0.03);}
+.tbl-col{display:table-cell;}
+.tbl-col.hidden{display:none;}
+.badge{display:inline-block;background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.3);color:var(--gold);font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;padding:2px 8px;margin-left:6px;vertical-align:middle;}
+
+hr.div{border:none;border-top:1px solid var(--border);margin:26px 0;}
+
+/* BUTTONS */
+.btn-p{font-family:'DM Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:2px;padding:17px 32px;border:none;cursor:pointer;background:var(--teal);color:var(--black);font-weight:600;width:100%;margin-top:10px;transition:opacity 0.15s;}
+.btn-p:hover{opacity:0.87;}
+.btn-s{font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:2px;padding:15px 28px;border:1px solid var(--teal);cursor:pointer;background:none;color:var(--teal);width:100%;margin-top:8px;transition:all 0.15s;}
+.btn-s:hover{background:rgba(61,191,184,0.08);}
+
+/* REVEAL SECTIONS */
+.rsec{display:none;margin-top:32px;}
+.rsec.show{display:block;}
+
+/* COST TABLE */
+.ctable{border:1px solid var(--border);margin-bottom:14px;}
+.crow{display:grid;grid-template-columns:1fr auto;gap:16px;padding:12px 18px;border-bottom:1px solid var(--border);align-items:center;}
+.crow:last-child{border-bottom:none;}
+.crow.total{background:var(--mid);}
+.clbl{font-size:13px;color:var(--dim);}
+.crow.total .clbl{font-weight:600;color:var(--white);font-size:14px;}
+.cval{font-size:14px;font-weight:600;font-family:'DM Mono',monospace;white-space:nowrap;}
+.cval.bad{color:var(--accent);}
+.cval.neutral{color:var(--white);}
+.cval.good{color:var(--teal);}
+.crow.total .cval{font-size:17px;}
+
+/* CALLOUT BOXES */
+.callout{padding:22px;margin:14px 0;text-align:center;}
+.callout.red{background:rgba(232,68,26,0.07);border:1px solid rgba(232,68,26,0.25);}
+.callout.teal{background:rgba(61,191,184,0.07);border:1px solid rgba(61,191,184,0.25);}
+.callout.gold{background:rgba(245,166,35,0.07);border:1px solid rgba(245,166,35,0.25);}
+.cbig{font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:1;letter-spacing:1px;}
+.cbig.red{color:var(--accent);}
+.cbig.teal{color:var(--teal);}
+.cbig.gold{color:var(--gold);}
+.clabel{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-top:4px;}
+.csub{font-size:13px;color:var(--dim);margin-top:8px;line-height:1.6;}
+
+/* EXPLANATION BOX */
+.explain{background:var(--grey);border-left:3px solid var(--blue);padding:16px 20px;margin:14px 0;font-size:13px;color:var(--dim);line-height:1.7;}
+.explain strong{color:var(--white);}
+
+/* IMMEDIATE COMPARE */
+.imm-compare{background:var(--grey);border:1px solid var(--border);padding:22px;margin:16px 0;display:none;}
+.imm-compare.show{display:block;}
+.imm-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-bottom:16px;}
+.imm-side{text-align:center;}
+.imm-big{font-family:'Bebas Neue',sans-serif;font-size:48px;line-height:1;letter-spacing:1px;}
+.imm-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-top:4px;}
+.imm-arrow{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--border);text-align:center;}
+.imm-save{border-top:1px solid var(--border);padding-top:16px;margin-top:4px;text-align:center;}
+.imm-save-big{font-family:'Bebas Neue',sans-serif;font-size:42px;color:var(--gold);letter-spacing:1px;}
+.imm-save-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-top:4px;}
+
+/* DYK */
+.dyk{background:rgba(74,144,217,0.06);border-left:3px solid var(--blue);padding:18px 22px;margin:20px 0;}
+.dyk-title{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--blue);margin-bottom:10px;}
+.dyk-row{display:flex;gap:12px;margin-bottom:8px;font-size:13px;color:var(--dim);line-height:1.55;}
+.dyk-row:last-child{margin-bottom:0;}
+
+/* PARTNER BLOCK */
+.partner{background:rgba(61,191,184,0.05);border:1px solid rgba(61,191,184,0.18);padding:22px;margin:20px 0;}
+.partner-title{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--teal);margin-bottom:10px;letter-spacing:1px;}
+.partner-text{font-size:13.5px;color:var(--dim);line-height:1.75;}
+.partner-text strong{color:var(--white);}
+
+/* FRP GRID */
+.frp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
+@media(max-width:560px){.frp-grid{grid-template-columns:1fr;}}
+.fcard{background:var(--grey);border:1px solid var(--border);padding:16px 18px;cursor:pointer;transition:border-color 0.18s;}
+.fcard:hover,.fcard.sel{border-color:var(--teal);background:rgba(61,191,184,0.05);}
+.fcard-eye{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--teal);margin-bottom:4px;}
+.fcard-rate{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--white);line-height:1;margin-bottom:4px;letter-spacing:1px;}
+.fcard-rate .hl{color:var(--teal);}
+.fcard-out{font-size:12px;color:var(--dim);margin-bottom:10px;line-height:1.5;}
+.fcard-save{font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);}
+
+/* COMPARE TABLE */
+.cmptable{border:1px solid var(--border);margin:14px 0;}
+.cmp-hdr{display:grid;grid-template-columns:1fr 130px 24px 130px;gap:8px;padding:11px 16px;background:var(--mid);border-bottom:1px solid var(--border);}
+.cmp-hdr span{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;}
+.cmp-hdr .them{color:var(--accent);}
+.cmp-hdr .us{color:var(--teal);text-align:right;}
+.cmp-row{display:grid;grid-template-columns:1fr 130px 24px 130px;gap:8px;padding:11px 16px;border-bottom:1px solid var(--border);align-items:center;}
+.cmp-row:last-child{border-bottom:none;background:var(--mid);}
+.cmp-row .rl{font-size:13px;color:var(--dim);}
+.cmp-row.ttl .rl{font-weight:600;color:var(--white);font-size:14px;}
+.cmp-row .tv{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);text-align:right;}
+.cmp-row .uv{font-family:'DM Mono',monospace;font-size:13px;color:var(--teal);text-align:right;}
+.cmp-row .ar{font-size:11px;color:var(--border);text-align:center;}
+.cmp-row.ttl .tv,.cmp-row.ttl .uv{font-size:16px;}
+
+/* SAVINGS SPLIT */
+.sav-split{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;align-items:center;padding:18px 0 14px;}
+.sav-side{text-align:center;}
+.sav-big{font-family:'Bebas Neue',sans-serif;font-size:52px;line-height:1;letter-spacing:1px;}
+.sav-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-top:2px;}
+
+/* YOURS TO KEEP */
+.ytk{background:var(--grey);border:1px solid rgba(61,191,184,0.3);padding:22px;margin:20px 0;}
+.ytk-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--teal);letter-spacing:1px;margin-bottom:14px;}
+.ytk-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:500px){.ytk-grid{grid-template-columns:1fr;}}
+.ytk-item{background:var(--mid);padding:16px;}
+.ytk-item-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;}
+.ytk-item-big{font-family:'Bebas Neue',sans-serif;font-size:38px;line-height:1;letter-spacing:1px;}
+.ytk-item-sub{font-size:12px;color:var(--muted);margin-top:4px;}
+.ytk-diff{margin-top:14px;padding:14px 16px;background:rgba(61,191,184,0.06);border:1px solid rgba(61,191,184,0.2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.ytk-diff-lbl{font-size:13px;color:var(--dim);}
+.ytk-diff-val{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);letter-spacing:1px;}
+
+/* PICKUP NOTE */
+.pu-note{background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.18);padding:16px 20px;margin:16px 0;display:none;}
+.pu-note.show{display:block;}
+.pu-note-title{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:8px;}
+.pu-note-body{font-size:13.5px;color:var(--dim);line-height:1.7;}
+.pu-note-body strong{color:var(--white);}
+
+/* OMAR VIEW */
+#omar-view{display:none;}
+.dist-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0;}
+@media(max-width:560px){.dist-grid{grid-template-columns:1fr 1fr;}}
+.dcard{background:var(--grey);border:1px solid var(--border);padding:16px;text-align:center;}
+.dcard-num{font-family:'Bebas Neue',sans-serif;font-size:42px;line-height:1;margin-bottom:4px;}
+.dcard-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:5px;}
+.dcard-sub{font-size:12px;color:var(--dim);line-height:1.4;}
+.stbl{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px;}
+.stbl th{padding:9px 14px;background:var(--mid);font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);text-align:left;border-bottom:1px solid var(--border);}
+.stbl td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--dim);}
+.stbl td.num{font-family:'DM Mono',monospace;color:var(--white);}
+.stbl td.good{color:var(--teal);font-family:'DM Mono',monospace;}
+.stbl td.warn{color:var(--gold);font-family:'DM Mono',monospace;}
+.stbl tr:last-child td{border-bottom:none;}
+.stbl .srow td{color:var(--white)!important;font-weight:600;background:var(--mid);}
+.snote{background:var(--grey);border-left:3px solid var(--gold);padding:14px 18px;margin:12px 0;font-size:13px;color:var(--dim);line-height:1.7;}
+.snote strong{color:var(--white);}
+.fnote{background:rgba(232,68,26,0.05);border:1px solid rgba(232,68,26,0.18);padding:16px 20px;margin:12px 0;}
+.fnote-t{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);margin-bottom:8px;}
+.fnote-b{font-size:13px;color:var(--dim);line-height:1.7;}
+.fnote-b strong{color:var(--white);}
+.inote{background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.18);padding:16px 20px;margin:12px 0;}
+.inote-t{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:8px;}
+.inote-b{font-size:13px;color:var(--dim);line-height:1.7;}
+.inote-b strong{color:var(--white);}
+.mt16{margin-top:16px;}
+.mt24{margin-top:24px;}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo">We<span>Get</span>It</div>
+  <button class="vtoggle" onclick="toggleView()" id="vtoggle-btn">Omar's View →</button>
+</div>
+
+<!-- ════════════════════ RESTAURANT VIEW ════════════════════ -->
+<div id="restaurant-view">
+
+<div class="stitle">What Are You Actually Paying?</div>
+<div class="ssub">Most restaurant owners focus on the headline commission number. The real cost of working with these platforms runs deeper. Fill in your numbers — you'll see what you're actually paying, then we'll compare.</div>
+
+<!-- CHECKLIST -->
+<div class="checklist">
+  <div class="cl-title">Before we start — have these numbers ready</div>
+  <div class="cl-items">
+    <div class="cl-item" onclick="toggleCheck(this)"><span class="cl-box">✓</span> Which DoorDash / UE / Grubhub plan you're on</div>
+    <div class="cl-item" onclick="toggleCheck(this)"><span class="cl-box">✓</span> Monthly spend on paid promotions or sponsored listings</div>
+    <div class="cl-item" onclick="toggleCheck(this)"><span class="cl-box">✓</span> How many refunds you absorb per month + avg amount</div>
+    <div class="cl-item" onclick="toggleCheck(this)"><span class="cl-box">✓</span> Any other monthly platform fees (tablet, Storefront, etc.)</div>
+    <div class="cl-item" onclick="toggleCheck(this)"><span class="cl-box">✓</span> Weekly delivery order count per app</div>
+    <div class="cl-item" onclick="toggleCheck(this)"><span class="cl-box">✓</span> Average delivery order value</div>
+    <div class="cl-item" onclick="toggleCheck(this)"><span class="cl-box">✓</span> Weekly pickup order count through the app</div>
+  </div>
+</div>
+
+<hr class="div">
+
+<!-- STEP 1 -->
+<div class="slbl">Step 1 — Your Current Platforms</div>
+<div class="ssub" style="margin-bottom:14px;">Select every platform you're currently on. You can be on more than one.</div>
+
+<div class="platform-cards">
+  <div class="pcard" id="pcard-dd" onclick="togglePlatform('dd')">
+    <div class="pcard-name">DoorDash</div>
+    <div class="pcard-rates">15% · 25% · 30%</div>
+  </div>
+  <div class="pcard" id="pcard-ue" onclick="togglePlatform('ue')">
+    <div class="pcard-name">Uber Eats</div>
+    <div class="pcard-rates">15% · 30%</div>
+  </div>
+  <div class="pcard" id="pcard-gh" onclick="togglePlatform('gh')">
+    <div class="pcard-name">Grubhub</div>
+    <div class="pcard-rates">15% · 20% · 25%</div>
+  </div>
+</div>
+
+<div class="tier-section" id="tiers-dd">
+  <div class="tier-lbl dd">DoorDash — which plan?</div>
+  <div class="tier-opts">
+    <div class="tier-opt" onclick="pickTier('dd',15,this)">Basic — 15%</div>
+    <div class="tier-opt" onclick="pickTier('dd',25,this)">Plus — 25%</div>
+    <div class="tier-opt" onclick="pickTier('dd',30,this)">Premier — 30%</div>
+  </div>
+</div>
+
+<div class="tier-section" id="tiers-ue">
+  <div class="tier-lbl ue">Uber Eats — which plan?</div>
+  <div class="tier-opts">
+    <div class="tier-opt" onclick="pickTier('ue',15,this)">Standard — 15%</div>
+    <div class="tier-opt" onclick="pickTier('ue',30,this)">Premium — 30%</div>
+  </div>
+</div>
+
+<div class="tier-section" id="tiers-gh">
+  <div class="tier-lbl gh">Grubhub — which plan?</div>
+  <div class="tier-opts">
+    <div class="tier-opt" onclick="pickTier('gh',15,this)">Basic — 15%</div>
+    <div class="tier-opt" onclick="pickTier('gh',20,this)">Delivery Plus — 20%</div>
+    <div class="tier-opt" onclick="pickTier('gh',25,this)">Ultimate — 25%</div>
+  </div>
+</div>
+
+<!-- Extra costs — shown once at least one platform selected -->
+<div class="extra-costs" id="extra-costs">
+  <hr class="div" style="margin:16px 0;">
+
+  <div class="cost-q">
+    <div class="cq-lbl">Are you running paid promotions or sponsored listings inside the app?</div>
+    <div class="cq-hint">Promoted placements, sponsored listings, DashPass-funded discounts — any extra spend for visibility.</div>
+    <div class="yn-row">
+      <div class="yn-btn sel" id="ads-no" onclick="ynToggle('ads',false)">No</div>
+      <div class="yn-btn" id="ads-yes" onclick="ynToggle('ads',true)">Yes</div>
+    </div>
+    <div class="amt-row hidden" id="ads-amt" style="flex-wrap:wrap;gap:8px;">
+      <span class="ipre">$</span><input type="number" id="monthly-ads" placeholder="Monthly flat $" min="0" style="width:145px;"><span class="ipre">/ month</span>
+      <span class="ipre" style="color:var(--border);padding:0 4px;">|</span>
+      <span class="ipre">or</span>
+      <input type="number" id="ads-pct" placeholder="% of revenue" min="0" max="100" step="0.1" style="width:140px;"><span class="ipre">%</span>
+    </div>
+    <div style="font-size:11px;color:var(--muted);font-style:italic;margin-top:6px;display:none;" id="ads-hint-row" class="hidden">Fill in one or the other — percentage auto-calculates based on weekly revenue.</div>
+  </div>
+
+  <div class="cost-q">
+    <div class="cq-lbl">Do you get hit with refunds you didn't agree to?</div>
+    <div class="cq-hint">Platform issues a refund to the customer and charges it back to you — without your input, no call first.</div>
+    <div class="yn-row">
+      <div class="yn-btn sel" id="ref-no" onclick="ynToggle('ref',false)">No / Rarely</div>
+      <div class="yn-btn" id="ref-yes" onclick="ynToggle('ref',true)">Yes</div>
+    </div>
+    <div class="amt-row hidden" id="ref-amt" style="flex-wrap:wrap;gap:8px;">
+      <input type="number" id="monthly-refunds" placeholder="Count / month" min="0" style="width:130px;">
+      <span class="ipre">×</span><span class="ipre">$</span>
+      <input type="number" id="avg-refund" placeholder="avg $" min="0" style="width:100px;">
+      <span class="ipre">each</span>
+      <span class="ipre" style="color:var(--border);padding:0 4px;">|</span>
+      <span class="ipre">or</span>
+      <input type="number" id="ref-pct" placeholder="% of revenue" min="0" max="100" step="0.1" style="width:140px;"><span class="ipre">%</span>
+    </div>
+    <div style="font-size:11px;color:var(--muted);font-style:italic;margin-top:6px;">Fill in count × avg OR enter as a % of revenue — whichever you know.</div>
+  </div>
+
+  <div class="cost-q">
+    <div class="cq-lbl">Any other platform fees? Tablet rental, Storefront subscription, add-ons?</div>
+    <div class="yn-row">
+      <div class="yn-btn sel" id="oth-no" onclick="ynToggle('oth',false)">No</div>
+      <div class="yn-btn" id="oth-yes" onclick="ynToggle('oth',true)">Yes</div>
+    </div>
+    <div class="amt-row hidden" id="oth-amt">
+      <span class="ipre">$</span><input type="number" id="other-fees" placeholder="Monthly cost" min="0" style="width:160px;"><span class="ipre">/ month</span>
+    </div>
+  </div>
+</div>
+
+<hr class="div">
+
+<!-- STEP 2 -->
+<div class="slbl">Step 2 — Your Numbers</div>
+<div class="ssub" style="margin-bottom:10px;">Enter your weekly order counts and average order value for each platform you're on. Leave blank if not applicable.</div>
+
+<div class="orders-table-wrap">
+  <table class="orders-table" id="orders-table">
+    <thead>
+      <tr>
+        <th class="row-lbl"></th>
+        <th class="dd tbl-col hidden" id="th-dd">DoorDash</th>
+        <th class="ue tbl-col hidden" id="th-ue">Uber Eats</th>
+        <th class="gh tbl-col hidden" id="th-gh">Grubhub</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="row-lbl">Delivery orders / week</td>
+        <td class="tbl-col hidden" id="td-dd-ord"><input type="number" id="dd-orders" placeholder="—" min="0"></td>
+        <td class="tbl-col hidden" id="td-ue-ord"><input type="number" id="ue-orders" placeholder="—" min="0"></td>
+        <td class="tbl-col hidden" id="td-gh-ord"><input type="number" id="gh-orders" placeholder="—" min="0"></td>
+      </tr>
+      <tr>
+        <td class="row-lbl">Average order value ($)</td>
+        <td class="tbl-col hidden" id="td-dd-aov"><input type="number" id="dd-aov" placeholder="—" min="0" step="0.01"></td>
+        <td class="tbl-col hidden" id="td-ue-aov"><input type="number" id="ue-aov" placeholder="—" min="0" step="0.01"></td>
+        <td class="tbl-col hidden" id="td-gh-aov"><input type="number" id="gh-aov" placeholder="—" min="0" step="0.01"></td>
+      </tr>
+      <tr class="pickup-row">
+        <td class="row-lbl">Pickup orders / week <span class="badge">0% on WeGetIt</span><div class="row-hint">Online orders picked up in-store through the app.</div></td>
+        <td class="tbl-col hidden" id="td-dd-pu"><input type="number" id="dd-pickup" placeholder="—" min="0"></td>
+        <td class="tbl-col hidden" id="td-ue-pu"><input type="number" id="ue-pickup" placeholder="—" min="0"></td>
+        <td class="tbl-col hidden" id="td-gh-pu"><input type="number" id="gh-pickup" placeholder="—" min="0"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<button class="btn-p" onclick="calculate()" style="margin-top:18px;">Calculate My True Cost →</button>
+
+<!-- STEP 3 RESULTS -->
+<div class="rsec" id="sec-results">
+  <hr class="div">
+  <div class="slbl">Step 3 — Your True Cost</div>
+  <div class="stitle">Here's What You're Actually Paying</div>
+  <div class="ctable" id="ctable-el"></div>
+
+  <div class="callout red">
+    <div class="cbig red" id="true-cost-pct">—%</div>
+    <div class="clabel">Your true all-in cost as % of total app revenue</div>
+    <div class="csub" id="true-cost-sub"></div>
+    <div class="csub" id="true-cost-wound" style="color:var(--accent);font-weight:600;margin-top:6px;"></div>
+  </div>
+
+  <div class="explain" id="explain-el"></div>
+
+  <button class="btn-s" onclick="showCompare()">See How WeGetIt Compares →</button>
+
+  <!-- IMMEDIATE COMPARE BOX -->
+  <div class="imm-compare" id="imm-compare">
+    <div class="slbl">Immediate Comparison — Standard 25% Rate</div>
+    <div class="imm-grid">
+      <div class="imm-side">
+        <div class="imm-big" style="color:var(--accent);" id="imm-current-pct">—%</div>
+        <div id="imm-current-dollar" style="font-family:'DM Mono',monospace;font-size:17px;color:var(--accent);font-weight:700;margin:5px 0;">—</div>
+        <div class="imm-lbl">You're paying now</div>
+      </div>
+      <div class="imm-arrow">→</div>
+      <div class="imm-side">
+        <div class="imm-big" style="color:var(--teal);" id="imm-wgi-pct">—%</div>
+        <div id="imm-wgi-dollar" style="font-family:'DM Mono',monospace;font-size:17px;color:var(--teal);font-weight:700;margin:5px 0;">—</div>
+        <div class="imm-lbl" id="imm-wgi-label">WeGetIt 25%</div>
+      </div>
+    </div>
+    <div class="imm-save">
+      <div class="imm-save-big" id="imm-save-wk">—</div>
+      <div class="imm-save-lbl" id="imm-save-lbl">— <span id="imm-save-yr">—</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 4 COMPARISON -->
+<div class="rsec" id="sec-compare">
+  <hr class="div">
+  <div class="slbl">Step 4 — The Comparison</div>
+  <div class="stitle">Same Restaurant. Different Platform.</div>
+
+  <div class="dyk">
+    <div class="dyk-title">How DoorDash Actually Works</div>
+    <div class="dyk-row"><span>🪝</span><span>They onboard you at 0% commission for 30-60 days so you get hooked on the order volume.</span></div>
+    <div class="dyk-row"><span>📈</span><span>After the trial, you pay 15-30% permanently — with no path to a lower rate, ever.</span></div>
+    <div class="dyk-row"><span>🚫</span><span>Auto-refunds issued without calling you. You can't reach your customer to fix the order first.</span></div>
+    <div class="dyk-row"><span>💸</span><span>Stack ads, promotions, and hidden fees on top. That's what you just calculated above.</span></div>
+  </div>
+
+  <div class="partner">
+    <div class="partner-title">This Is What a Partner Looks Like</div>
+    <div class="partner-text">WeGetIt doesn't hook you at 0% and then overcharge you once you're dependent. We ask you to <strong>pay a higher rate temporarily</strong> — because you're carrying this business while we grow. In return, we permanently lower your rate or take it to zero. You carried us. We remember that.<br><br><strong>No auto-refunds. Call your customer directly. 0% on pickup orders. Equal placement — no pay-to-rank. No hidden fees.</strong> You could be paying 45% all-in right now without knowing it. This isn't a platform relationship. It's a partnership.</div>
+  </div>
+
+  <div class="slbl mt16">Choose Your Path — Select a Tier</div>
+  <div class="frp-grid" id="frp-grid-el"></div>
+
+  <div id="tier-detail" style="display:none;">
+
+    <!-- PERIOD TOGGLE — only shows for FRP tiers -->
+    <div id="period-toggle-wrap" style="display:none;margin-bottom:14px;">
+      <div style="display:flex;border:1px solid var(--border);">
+        <button id="btn-frp" onclick="switchPeriod('frp')" style="flex:1;font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;padding:12px;border:none;cursor:pointer;background:var(--teal);color:var(--black);font-weight:600;transition:all 0.15s;">FRP Period</button>
+        <button id="btn-post" onclick="switchPeriod('post')" style="flex:1;font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;padding:12px;border:none;cursor:pointer;background:none;color:var(--muted);transition:all 0.15s;">Post-National →</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;font-style:italic;" id="period-toggle-sub"></div>
+    </div>
+
+    <!-- SHARED COMPARISON TABLE (content switches) -->
+    <div class="cmptable" id="cmptable-el"></div>
+
+    <!-- SHARED CALLOUT (content switches) -->
+    <div class="callout teal">
+      <div class="sav-split">
+        <div class="sav-side"><div class="sav-big" style="color:var(--accent);" id="sav-cur">—%</div><div class="sav-lbl">Current true cost</div></div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;color:var(--border);">→</div>
+        <div class="sav-side"><div class="sav-big" style="color:var(--teal);" id="sav-wgi">—%</div><div class="sav-lbl" id="sav-wgi-lbl">WeGetIt true cost</div></div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">
+        <div class="cbig gold" id="sav-yr">—</div>
+        <div class="clabel" id="sav-yr-lbl">Annual savings vs current</div>
+      </div>
+    </div>
+
+    <!-- 15.6% EXPLANATION — shows when WGI rate differs from commission rate -->
+    <div id="rate-explain" style="display:none;background:rgba(61,191,184,0.06);border-left:3px solid var(--teal);padding:12px 16px;margin:12px 0;font-size:12px;color:var(--dim);line-height:1.6;"></div>
+
+  </div>
+
+  <div class="ytk" id="ytk-box" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div class="ytk-title" style="margin:0;">Yours to Keep</div>
+      <div id="ytk-toggle-wrap" style="display:none;border:1px solid var(--border);overflow:hidden;">
+        <button id="ytk-btn-frp" onclick="switchPeriod('frp')" style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:7px 12px;border:none;cursor:pointer;background:var(--teal);color:var(--black);font-weight:600;">FRP</button>
+        <button id="ytk-btn-post" onclick="switchPeriod('post')" style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:7px 12px;border:none;cursor:pointer;background:none;color:var(--muted);">Post-FRP →</button>
+      </div>
+    </div>
+    <div class="ytk-grid">
+      <div class="ytk-item">
+        <div class="ytk-item-lbl">Current (all platforms)</div>
+        <div class="ytk-item-big" style="color:var(--accent);" id="ytk-cur-wk">—</div>
+        <div class="ytk-item-sub" id="ytk-cur-yr">per week</div>
+      </div>
+      <div class="ytk-item">
+        <div class="ytk-item-lbl" id="ytk-wgi-lbl">With WeGetIt</div>
+        <div class="ytk-item-big" style="color:var(--teal);" id="ytk-wgi-wk">—</div>
+        <div class="ytk-item-sub" id="ytk-wgi-yr">per week</div>
+      </div>
+    </div>
+    <div class="ytk-diff">
+      <div class="ytk-diff-lbl" id="ytk-diff-lbl">Difference per year</div>
+      <div class="ytk-diff-val" id="ytk-diff">—</div>
+    </div>
+  </div>
+
+  <!-- REPORT ACTIONS -->
+  <div id="report-actions" style="display:none;margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+    <div class="slbl">Save Your Numbers</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px;font-style:italic;">Close this tab and lose everything — or save it now.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+      <button onclick="downloadReport()" style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;padding:16px 8px;border:1px solid var(--teal);cursor:pointer;background:none;color:var(--teal);transition:background 0.15s;" onmouseover="this.style.background='rgba(61,191,184,0.08)'" onmouseout="this.style.background='none'">⬇ Download</button>
+      <button onclick="emailReport()" style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;padding:16px 8px;border:1px solid var(--teal);cursor:pointer;background:none;color:var(--teal);transition:background 0.15s;" onmouseover="this.style.background='rgba(61,191,184,0.08)'" onmouseout="this.style.background='none'">✉ Email</button>
+      <button onclick="textReport()" style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;padding:16px 8px;border:1px solid var(--teal);cursor:pointer;background:none;color:var(--teal);transition:background 0.15s;" onmouseover="this.style.background='rgba(61,191,184,0.08)'" onmouseout="this.style.background='none'">💬 Text <span style="font-size:8px;display:block;color:var(--muted);text-transform:none;letter-spacing:0;margin-top:2px;">mobile only</span></button>
+    </div>
+  </div>
+
+</div><!-- end sec-compare -->
+
+</div><!-- end restaurant-view -->
+
+
+<!-- ════════════════════ OMAR'S VIEW ════════════════════ -->
+<div id="omar-view">
+  <div class="stitle">FRP Strategy Analysis</div>
+  <div class="ssub">Internal view — distribution, break-even scenarios, tier targeting, and launch gates.</div>
+
+  <div class="slbl">Expected Distribution — 100 Restaurants Approached</div>
+  <div class="dist-grid">
+    <div class="dcard"><div class="dcard-num" style="color:var(--muted);">40-50</div><div class="dcard-lbl">Won't Engage</div><div class="dcard-sub">Don't pick up, wrong timing, wrong fit. Don't chase.</div></div>
+    <div class="dcard"><div class="dcard-num" style="color:var(--teal);">5-10</div><div class="dcard-lbl">God Mode 40%</div><div class="dcard-sub">Premier + ads + high refunds. True cost already 38-45%. Easiest mathematical argument.</div></div>
+    <div class="dcard"><div class="dcard-num" style="color:var(--white);">10-15</div><div class="dcard-lbl">Founding 35%</div><div class="dcard-sub">Premier or Plus, some ad spend. Pain is real but 40% ask is too aggressive.</div></div>
+    <div class="dcard"><div class="dcard-num" style="color:var(--white);">15-20</div><div class="dcard-lbl">Early Adopter 30%</div><div class="dcard-sub">Premier payers, low ad spend, light refund exposure. Easiest FRP sell. Largest group.</div></div>
+    <div class="dcard"><div class="dcard-num" style="color:var(--white);">8-12</div><div class="dcard-lbl">Standard 25%</div><div class="dcard-sub">Want WeGetIt but won't commit to temporary higher rate. Still valuable volume.</div></div>
+    <div class="dcard"><div class="dcard-num" style="color:var(--dim);">5-8</div><div class="dcard-lbl">Not Yet</div><div class="dcard-sub">Interested but not ready. Follow up in 30 days when you have live orders to show.</div></div>
+  </div>
+
+  <div class="snote"><strong>The math:</strong> You need 8-12 active restaurants to hit break-even. Out of 100 approached, you realistically sign 38-57. Break-even is achievable from your first 20-25 serious conversations if you target anchor Warren Ave restaurants first.</div>
+
+  <div class="slbl mt24">Break-Even by Tier Mix</div>
+  <div class="ssub" style="font-size:12px;color:var(--muted);margin-bottom:10px;">WeGetIt always keeps $1/order. What changes is driver base pay — which drives recruitment.</div>
+  <table class="stbl">
+    <thead><tr><th>Scenario</th><th>Avg Commission</th><th>Driver Base/Order</th><th>Driver Gross/Hr</th><th>WeGetIt Keeps</th><th>Break-Even</th></tr></thead>
+    <tbody>
+      <tr><td>All God Mode (40%)</td><td class="num">40%</td><td class="good">$7.26</td><td class="good">$33.03 + tips</td><td class="num">$1.00</td><td class="num">3,500/mo</td></tr>
+      <tr><td>FRP Blended (38%)</td><td class="num">38%</td><td class="good">$6.84</td><td class="good">$31.77 + tips</td><td class="num">$1.00</td><td class="num">3,500/mo</td></tr>
+      <tr><td>FRP Blended (35%)</td><td class="num">35%</td><td class="good">$6.20</td><td class="good">$29.85 + tips</td><td class="num">$1.00</td><td class="num">3,500/mo</td></tr>
+      <tr><td>FRP Blended (30%)</td><td class="num">30%</td><td class="warn">$5.13</td><td class="warn">$26.64 + tips</td><td class="num">$1.00</td><td class="num">3,500/mo</td></tr>
+      <tr><td>Standard 25% only</td><td class="num">25%</td><td class="warn">$4.06</td><td class="warn">$21.93 + tips</td><td class="num">$1.00</td><td class="num">3,500/mo</td></tr>
+      <tr class="srow"><td>Ideal Launch Mix (2-3 God Mode + 5-7 FRP 30-35% + 2-3 Standard)</td><td>~33%</td><td class="good">~$5.80</td><td class="good">~$28.40 + tips</td><td class="num">$1.00</td><td class="good">3,500/mo</td></tr>
+    </tbody>
+  </table>
+
+  <div class="slbl mt24">Out of 100 Restaurants — Tier Targets</div>
+  <table class="stbl">
+    <thead><tr><th>Tier</th><th>Rate</th><th>Target Out of 100</th><th>Minimum Needed</th><th>Feasibility</th></tr></thead>
+    <tbody>
+      <tr><td style="color:var(--teal);font-weight:600;">God Mode</td><td class="num">40% → 0% perm.</td><td class="good">5-10</td><td class="warn">2-3 anchor restaurants</td><td class="warn">Hard — Premier+ads only</td></tr>
+      <tr><td style="color:var(--white);font-weight:600;">Founding Member</td><td class="num">35% → 0% / 12mo</td><td class="good">10-15</td><td class="num">3-5</td><td class="good">Moderate</td></tr>
+      <tr><td style="color:var(--white);">Early Adopter</td><td class="num">30% → 10% / 12mo</td><td class="good">15-20</td><td class="num">3-5</td><td class="good">Easiest FRP sell</td></tr>
+      <tr><td style="color:var(--dim);">Standard</td><td class="num">25% ongoing</td><td class="num">8-12</td><td class="num">2-3</td><td class="good">Always available</td></tr>
+      <tr><td style="color:var(--muted);">Won't Join</td><td class="num">—</td><td class="num">40-50</td><td class="num">—</td><td class="num">Don't chase</td></tr>
+      <tr class="srow"><td colspan="2">Active restaurants needed for break-even</td><td colspan="3" class="good">8-12 minimum · 12-15 comfortable · Achievable from first 30 serious conversations</td></tr>
+    </tbody>
+  </table>
+
+  <div class="slbl mt24">Minimum Launch Gates</div>
+  <table class="stbl">
+    <thead><tr><th>What You Need</th><th>Number</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Restaurant LOIs signed</td><td class="good">5 minimum</td><td>Investor credibility + self-signal to build</td></tr>
+      <tr><td>Active restaurants at launch</td><td class="good">8 min · 12 comfortable</td><td>At 15 orders/restaurant/day → 120-180/day → above break-even</td></tr>
+      <tr><td>God Mode anchor restaurants</td><td class="warn">2-3</td><td>Farooj + Al Ameer + 1 more carries driver recruitment story</td></tr>
+      <tr><td>Active drivers at launch</td><td class="warn">15-20</td><td>3 deliveries/hr × 4 hrs/day = 12/driver/day coverage</td></tr>
+      <tr><td>Monthly orders to break-even</td><td class="num">3,500</td><td>$1 net/order × 3,500 = ~$3,500/mo fixed costs</td></tr>
+      <tr class="srow"><td>Start building after…</td><td colspan="2">5 restaurant LOIs signed. Not before.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="slbl mt24">Pass Strategy — Revision Flag</div>
+  <div class="fnote">
+    <div class="fnote-t">⚑ Revisit Post-Launch</div>
+    <div class="fnote-b">If average users order 4x/month or fewer and pass subscription rate stays below 20%, the driver supplement pool stays near $0. This does not kill break-even — WeGetIt still nets $1/order. But it removes the strongest driver retention incentive. <strong>Track pass conversion in PostHog from week one. If below 20% after 500 users, push Pass conversion harder before the 10-order free limit. Consider $4.99 intro month.</strong></div>
+  </div>
+
+  <div class="slbl mt24">Commission Language — Key Nuance</div>
+  <div class="inote">
+    <div class="inote-t">The "Nearly Half" Context</div>
+    <div class="inote-b">WeGetIt's "nearly half" claim only holds against <strong>DoorDash Premier (30%)</strong>. Against Basic (15%) WeGetIt is more expensive in base commission. Against Plus (25%) they're equal. <strong>For Basic and Plus restaurants, lead with total true cost — no auto-refunds, no marketing fee, 0% pickup, direct customer access.</strong> The 0% FRP permanent tier is the strongest differentiator for all tiers.</div>
+  </div>
+
+</div><!-- end omar-view -->
+
+</div><!-- end page -->
+
+<script>
+// ── VIEW TOGGLE ──
+function toggleView() {
+  const rv = document.getElementById('restaurant-view');
+  const ov = document.getElementById('omar-view');
+  const btn = document.getElementById('vtoggle-btn');
+  if (ov.style.display === 'block') {
+    ov.style.display = 'none'; rv.style.display = 'block'; btn.textContent = "Omar's View →";
+  } else {
+    ov.style.display = 'block'; rv.style.display = 'none'; btn.textContent = '← Restaurant View';
+  }
+}
+
+// ── CHECKLIST ──
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  el.querySelector('.cl-box').textContent = el.classList.contains('checked') ? '✓' : '';
+}
+
+// ── PLATFORM STATE ──
+const platforms = { dd: { active: false, rate: 0 }, ue: { active: false, rate: 0 }, gh: { active: false, rate: 0 } };
+const pColors = { dd: 'dd', ue: 'ue', gh: 'gh' };
+
+function togglePlatform(p) {
+  platforms[p].active = !platforms[p].active;
+  const card = document.getElementById('pcard-' + p);
+  const tiers = document.getElementById('tiers-' + p);
+  if (platforms[p].active) {
+    card.classList.add('active-' + p);
+    tiers.classList.add('show');
+  } else {
+    card.classList.remove('active-' + p);
+    tiers.classList.remove('show');
+    platforms[p].rate = 0;
+    document.querySelectorAll('#tiers-' + p + ' .tier-opt').forEach(o => o.className = 'tier-opt');
+  }
+  updateTableCols();
+  const anyActive = Object.values(platforms).some(pl => pl.active);
+  document.getElementById('extra-costs').classList.toggle('show', anyActive);
+}
+
+function pickTier(p, rate, el) {
+  document.querySelectorAll('#tiers-' + p + ' .tier-opt').forEach(o => o.className = 'tier-opt');
+  el.classList.add('sel-' + p);
+  platforms[p].rate = rate;
+}
+
+function updateTableCols() {
+  ['dd','ue','gh'].forEach(p => {
+    const show = platforms[p].active;
+    ['th-'+p, 'td-'+p+'-ord', 'td-'+p+'-aov', 'td-'+p+'-pu'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.classList.toggle('hidden', !show); el.classList.toggle('tbl-col', true); }
+    });
+  });
+}
+
+// ── YES/NO TOGGLES ──
+function ynToggle(key, yes) {
+  document.getElementById(key+'-no').classList.toggle('sel', !yes);
+  document.getElementById(key+'-yes').classList.toggle('sel', yes);
+  document.getElementById(key+'-amt').classList.toggle('hidden', !yes);
+}
+
+// ── HELPERS ──
+function gn(id) { const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? 0 : v; }
+function fmt(n) { return '$' + Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0}); }
+function fp(n) { return n.toFixed(1) + '%'; }
+function rowH(lbl, val, cls, bg) {
+  return `<div class="crow" ${bg?`style="background:${bg};"`:''}><div class="clbl">${lbl}</div><div class="cval ${cls}">${val}</div></div>`;
+}
+
+// ── GLOBAL DATA ──
+let D = {};
+
+// ── CALCULATE ──
+function calculate() {
+  // Check actual Yes/No state — ignore field values if toggled back to No
+  const adsYes = document.getElementById('ads-yes').classList.contains('sel');
+  const refYes = document.getElementById('ref-yes').classList.contains('sel');
+  const othYes = document.getElementById('oth-yes').classList.contains('sel');
+  const mAdsFlat = adsYes ? gn('monthly-ads') : 0;
+  const adsPct   = adsYes ? gn('ads-pct')     : 0;
+  const mRef     = refYes ? gn('monthly-refunds') : 0;
+  const avgRef   = refYes ? gn('avg-refund')   : 0;
+  const refPct   = refYes ? gn('ref-pct')      : 0;
+  const mOth     = othYes ? gn('other-fees')   : 0;
+
+  // Per-platform
+  let totalRev = 0, totalPickupRev = 0, totalComm = 0, totalPickupComm = 0;
+  const platData = {};
+  ['dd','ue','gh'].forEach(p => {
+    if (!platforms[p].active) return;
+    const ord = gn(p+'-orders');
+    const aov = gn(p+'-aov');
+    const pu = gn(p+'-pickup');
+    const rate = platforms[p].rate || 0;
+    const rev = ord * aov;
+    const puRev = pu * aov;
+    const comm = rev * (rate / 100);
+    const puComm = puRev * 0.06;
+    platData[p] = { ord, aov, pu, rate, rev, puRev, comm, puComm };
+    totalRev += rev;
+    totalPickupRev += puRev;
+    totalComm += comm;
+    totalPickupComm += puComm;
+  });
+
+  const totalWkRev = totalRev + totalPickupRev;
+  const wkAds = adsPct > 0 ? (totalWkRev * adsPct / 100) : (mAdsFlat / 4.33);
+  const wkRef = refPct > 0 ? (totalWkRev * refPct / 100) : ((mRef * avgRef) / 4.33);
+  const wkOth = othYes ? (mOth / 4.33) : 0;
+  const totalWkCost = totalComm + totalPickupComm + wkAds + wkRef + wkOth;
+  const trueRate = totalWkRev > 0 ? (totalWkCost / totalWkRev) * 100 : 0;
+  const wkKeep = totalWkRev - totalWkCost;
+
+  // Blended commission rate for label
+  const blendedRate = totalRev > 0 ? (totalComm / totalRev) * 100 : 0;
+
+  D = { totalRev, totalPickupRev, totalWkRev, totalComm, totalPickupComm, wkAds, wkRef, wkOth, totalWkCost, trueRate, wkKeep, blendedRate, platData, avgOv: totalRev > 0 ? totalRev / Object.values(platData).reduce((a,v)=>a+v.ord,0) : 0, totalPickup: Object.values(platData).reduce((a,v)=>a+v.puRev,0) };
+
+  // Build cost table
+  let rows = '';
+  if (totalRev > 0) rows += rowH('Delivery revenue (weekly)', fmt(totalRev), 'neutral');
+  if (totalPickupRev > 0) rows += rowH('Pickup revenue (weekly)', fmt(totalPickupRev), 'neutral');
+  ['dd','ue','gh'].forEach(p => {
+    if (!platData[p]) return;
+    const pd = platData[p];
+    const name = {dd:'DoorDash',ue:'Uber Eats',gh:'Grubhub'}[p];
+    if (pd.comm > 0) rows += rowH(`${name} commission (${pd.rate}%)`, '−'+fmt(pd.comm), 'bad');
+    if (pd.puComm > 0) rows += rowH(`${name} pickup commission (6%)`, '−'+fmt(pd.puComm), 'bad');
+  });
+  if (wkAds > 0) rows += rowH('Paid promotions / ads (weekly)', '−'+fmt(wkAds), 'bad');
+  if (wkRef > 0) rows += rowH('Auto-refunds absorbed (weekly)', '−'+fmt(wkRef), 'bad');
+  if (wkOth > 0) rows += rowH('Other platform fees (weekly)', '−'+fmt(wkOth), 'bad');
+  rows += rowH('Total cost to the platform per week', '−'+fmt(totalWkCost), 'bad', 'rgba(232,68,26,0.08)');
+  rows += rowH('What you actually keep per week', fmt(wkKeep), wkKeep > 0 ? 'good' : 'bad', 'var(--mid)');
+  document.getElementById('ctable-el').innerHTML = rows;
+
+  // True cost display
+  document.getElementById('true-cost-pct').textContent = fp(trueRate);
+  document.getElementById('true-cost-sub').innerHTML = 'You keep <strong>' + fmt(wkKeep) + '/week</strong> — ' + fmt(wkKeep * 52) + '/year';
+  document.getElementById('true-cost-wound').innerHTML = 'You pay <strong style="color:var(--accent);">' + fmt(totalWkCost) + '/week — ' + fmt(totalWkCost * 52) + '/year</strong> to the platform';
+
+  // Explanation
+  let explainText = `<strong>${fp(trueRate)}</strong> is what you're paying — not saving. For every dollar of app revenue, ${trueRate.toFixed(1)}¢ goes to the platform. The remaining ${(100-trueRate).toFixed(1)}¢ is yours before food costs, labor, and overhead.`;
+  if (trueRate < blendedRate - 0.5) {
+    explainText += ` Your true rate is <em>lower</em> than your stated commission rate because pickup orders (charged at 6%) bring the blended average down.`;
+  } else if (trueRate > blendedRate + 0.5) {
+    explainText += ` Your true rate is <em>higher</em> than your stated commission rate because ads, refunds, and extra fees are stacked on top.`;
+  }
+  document.getElementById('explain-el').innerHTML = explainText;
+
+  document.getElementById('sec-results').classList.add('show');
+  document.getElementById('sec-results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ── IMMEDIATE COMPARE ──
+function showCompare() {
+  const w25 = calcWGI(25);
+  document.getElementById('imm-current-pct').textContent = fp(D.trueRate);
+  document.getElementById('imm-current-dollar').textContent = fmt(D.totalWkCost) + '/week';
+  document.getElementById('imm-wgi-pct').textContent = fp(w25.pct);
+  document.getElementById('imm-wgi-dollar').textContent = fmt(w25.total) + '/week';
+  document.getElementById('imm-wgi-label').textContent = 'WeGetIt standard 25% · ' + fp(w25.pct);
+  if (w25.savWk >= 0) {
+    document.getElementById('imm-save-wk').textContent = '+' + fmt(w25.savWk) + '/week more in your pocket';
+    document.getElementById('imm-save-wk').style.color = 'var(--gold)';
+    document.getElementById('imm-save-lbl').innerHTML = 'More per week on WeGetIt — <span id="imm-save-yr">+' + fmt(w25.savYr) + '</span>/year';
+  } else {
+    document.getElementById('imm-save-wk').textContent = fmt(Math.abs(w25.savWk)) + '/week less at standard 25%';
+    document.getElementById('imm-save-wk').style.color = 'var(--accent)';
+    document.getElementById('imm-save-lbl').innerHTML = 'Standard 25% costs more than your current rate — <span id="imm-save-yr">−' + fmt(Math.abs(w25.savYr)) + '</span>/year · FRP tiers below may change this';
+  }
+  document.getElementById('imm-compare').classList.add('show');
+
+  buildFRPGrid();
+  document.getElementById('sec-compare').classList.add('show');
+  document.getElementById('imm-compare').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ── WGI CALC ──
+function calcWGI(rate) {
+  const wgiComm = D.totalRev * (rate / 100);
+  const total = wgiComm; // 0 ads, 0 refunds, 0 pickup
+  const pct = D.totalWkRev > 0 ? (total / D.totalWkRev) * 100 : 0;
+  const keep = D.totalWkRev - total;
+  const savWk = keep - D.wkKeep;
+  const savYr = savWk * 52;
+  return { wgiComm, total, pct, keep, savWk, savYr };
+}
+
+// ── FRP TIERS ──
+const TIERS = [
+  {id:'god', eye:'First 100 restaurants', rate:40, canCancel:true, out:'Once we go national: 0%',
+   phases:[
+     {id:'frp',    label:'FRP Period',      sub:'40% founding rate',    rate:40},
+     {id:'perm',   label:'Post-National',   sub:'0% permanently',       rate:0 },
+   ]},
+  {id:'found', eye:'Restaurants 101-250', rate:35, canCancel:true, out:'0% for 12 months, then 25%',
+   phases:[
+     {id:'frp',    label:'FRP Period',      sub:'35% founding rate',    rate:35},
+     {id:'reward', label:'12-Mo Reward',    sub:'0% for 12 months',     rate:0 },
+     {id:'perm',   label:'After 12 Months', sub:'25% standard ongoing', rate:25},
+   ]},
+  {id:'early', eye:'Restaurants 251-500', rate:30, canCancel:true, out:'10% for 12 months, then 25%',
+   phases:[
+     {id:'frp',    label:'FRP Period',      sub:'30% founding rate',    rate:30},
+     {id:'reward', label:'12-Mo Reward',    sub:'10% for 12 months',    rate:10},
+     {id:'perm',   label:'After 12 Months', sub:'25% standard ongoing', rate:25},
+   ]},
+  {id:'std', eye:'Always available', rate:25, canCancel:false, out:'25% ongoing',
+   phases:[
+     {id:'std', label:'Standard', sub:'25% ongoing', rate:25},
+   ]},
+];
+
+function buildFRPGrid() {
+  document.getElementById('frp-grid-el').innerHTML = TIERS.map((t,i) => {
+    const phaseLines = (t.phases || []).map(ph => {
+      const w = calcWGI(ph.rate);
+      const isPositive = w.savYr >= 0;
+      const color = ph.id === 'frp' ? (isPositive ? 'var(--gold)' : 'var(--accent)')
+                  : ph.id === 'perm' ? 'var(--teal)'
+                  : 'var(--teal)';
+      const sign = isPositive ? '+' : '−';
+      return `<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,0.04);">
+        <span style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;">${ph.label} (${ph.sub})</span>
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:${color};font-weight:600;">${sign}${fmt(Math.abs(w.savYr))}/yr</span>
+      </div>`;
+    }).join('');
+    const cancelLine = t.canCancel ? `<div style="font-size:10px;color:var(--muted);margin-top:8px;border-top:1px solid var(--border);padding-top:8px;line-height:1.5;">Cancel to 25% any time. FRP rates only for founding partners.</div>` : '';
+    return `<div class="fcard" id="fc-${t.id}" onclick="selectFRPTier(${i})">
+      <div class="fcard-eye">${t.eye}</div>
+      <div class="fcard-rate"><span class="hl">${t.rate}%</span>${t.rate === 25 ? '' : ' founding rate'}</div>
+      <div class="fcard-out">${t.out}</div>
+      ${phaseLines}
+      ${cancelLine}
+    </div>`;
+  }).join('');
+}
+
+let selTier = null;
+let _curPhase = 0;
+
+function selectFRPTier(i) {
+  TIERS.forEach((t,j) => { const c = document.getElementById('fc-'+t.id); if(c) c.classList.toggle('sel',j===i); });
+  selTier = TIERS[i];
+  if (!selTier || !selTier.phases || !selTier.phases.length) return;
+  _curPhase = 0;
+  buildPhaseToggles();
+  renderPhase(0);
+  document.getElementById('tier-detail').style.display = 'block';
+  updateYTK(selTier, calcWGI(selTier.phases[0].rate), null);
+  document.getElementById('tier-detail').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function buildPhaseToggles() {
+  const phases = selTier.phases;
+  const hasMult = phases.length > 1;
+  const togWrap = document.getElementById('period-toggle-wrap');
+  const ytkWrap = document.getElementById('ytk-toggle-wrap');
+
+  if (!hasMult) {
+    togWrap.style.display = 'none';
+    ytkWrap.style.display = 'none';
+    return;
+  }
+
+  // Main toggle
+  const btnHtml = (phases || []).map((ph, i) =>
+    `<button onclick="switchPhase(${i})" id="phase-btn-${i}" style="flex:1;font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:12px 4px;border:none;cursor:pointer;background:${i===0?'var(--teal)':'none'};color:${i===0?'var(--black)':'var(--muted)'};font-weight:${i===0?'600':'normal'};transition:all 0.15s;line-height:1.5;text-align:center;">${ph.label}<br><span style="font-size:8px;opacity:0.7;">${ph.sub}</span></button>`
+  ).join('');
+  togWrap.innerHTML = `<div style="display:flex;border:1px solid var(--border);">${btnHtml}</div>`;
+  togWrap.style.display = 'block';
+
+  // YTK mini toggle
+  const ytkHtml = (phases || []).map((ph, i) =>
+    `<button onclick="switchPhase(${i})" id="ytk-phase-${i}" style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:0.5px;padding:6px 8px;border:none;cursor:pointer;background:${i===0?'var(--teal)':'none'};color:${i===0?'var(--black)':'var(--muted)'};font-weight:${i===0?'600':'normal'};">${ph.label}</button>`
+  ).join('');
+  ytkWrap.innerHTML = ytkHtml;
+  ytkWrap.style.display = 'block';
+}
+
+function switchPhase(idx) {
+  _curPhase = idx;
+  // Update toggle button styles
+  if (selTier && selTier.phases) {
+    selTier.phases.forEach((ph, i) => {
+      ['phase-btn-', 'ytk-phase-'].forEach(prefix => {
+        const el = document.getElementById(prefix + i);
+        if (el) {
+          el.style.background = i === idx ? 'var(--teal)' : 'none';
+          el.style.color = i === idx ? 'var(--black)' : 'var(--muted)';
+          el.style.fontWeight = i === idx ? '600' : 'normal';
+        }
+      });
+    });
+  }
+  renderPhase(idx);
+}
+
+function renderPhase(idx) {
+  if (!selTier || !selTier.phases || !selTier.phases[idx]) return;
+  const phase = selTier.phases[idx];
+  const w = calcWGI(phase.rate);
+  buildCompareTable(selTier, w, phase.rate);
+
+  document.getElementById('sav-cur').textContent = fp(D.trueRate);
+  document.getElementById('sav-wgi').textContent = fp(w.pct);
+  document.getElementById('sav-wgi-lbl').textContent = `${phase.label} true cost`;
+
+  // Label for annual savings
+  const isFirstPhase = idx === 0;
+  const isLastPhase = idx === selTier.phases.length - 1;
+  const savLbl = isFirstPhase && selTier.phases.length > 1
+    ? 'During founding period vs current'
+    : isLastPhase ? 'Long-term annual benefit' : `During ${phase.sub}`;
+  document.getElementById('sav-yr-lbl').textContent = savLbl;
+
+  const savYrEl = document.getElementById('sav-yr');
+  if (w.savYr >= 0) {
+    savYrEl.textContent = '+' + fmt(w.savYr) + '/year';
+    savYrEl.style.color = (idx === 0 && selTier.phases.length > 1) ? 'var(--gold)' : 'var(--teal)';
+    savYrEl.style.fontSize = '';
+  } else {
+    const nextHint = idx + 1 < selTier.phases.length ? ' · Switch to next phase →' : '';
+    savYrEl.textContent = '−' + fmt(Math.abs(w.savYr)) + '/year · Founding rate is higher than current plan' + nextHint;
+    savYrEl.style.color = 'var(--accent)';
+    savYrEl.style.fontSize = '14px';
+  }
+
+  // YTK
+  document.getElementById('ytk-wgi-lbl').textContent = `${phase.label} (${phase.sub})`;
+  document.getElementById('ytk-wgi-wk').textContent = fmt(w.keep) + '/wk';
+  document.getElementById('ytk-wgi-yr').textContent = fmt(w.keep * 52) + '/year';
+  const ns = w.savYr;
+  const ytkD = document.getElementById('ytk-diff');
+  ytkD.textContent = (ns >= 0 ? '+' : '−') + fmt(Math.abs(ns)) + '/year';
+  ytkD.style.color = ns >= 0 ? 'var(--gold)' : 'var(--accent)';
+
+  // Explain blended rate vs commission rate
+  const explain = document.getElementById('rate-explain');
+  if (D.totalPickupRev > 0 && phase.rate > 0 && Math.abs(w.pct - phase.rate) > 0.5 && w.pct < phase.rate) {
+    explain.style.display = 'block';
+    explain.innerHTML = `Effective rate shows <strong>${fp(w.pct)}</strong> — lower than the stated <strong>${phase.rate}%</strong> because pickup orders carry <strong>$0 commission</strong>. Pickup revenue is included in the denominator but has no fee, which lowers the blended rate. Delivery-only rate: ${phase.rate}%.`;
+  } else {
+    explain.style.display = 'none';
+  }
+}
+
+function buildCompareTable(tier, w, useRate) {
+  const _useRate = (useRate !== undefined) ? useRate : (tier ? tier.rate : 25);
+  const isPostFRP = tier && _useRate < tier.rate;
+  const hdrLabel = isPostFRP ? `After FRP (${_useRate}%)` : `WeGetIt ${_useRate}%`;
+  const _pd = D.platData || {};
+  const totalOrders = Object.values(_pd).reduce((a,v) => a + (v.ord||0), 0);
+  const totalPickupOrders = Object.values(_pd).reduce((a,v) => a + (v.pu||0), 0);
+  const avgAOV = totalOrders > 0 ? (D.totalRev / totalOrders) : 0;
+  const orderSummary = `${totalOrders} delivery + ${totalPickupOrders} pickup = ${totalOrders + totalPickupOrders} orders/wk · $${avgAOV.toFixed(0)} avg`;
+
+  function cRow(lbl, tv, uv, isTotal) {
+    return `<div class="cmp-row ${isTotal ? 'ttl' : ''}">
+      <div class="rl">${lbl}</div>
+      <div class="tv">${tv}</div>
+      <div class="ar">→</div>
+      <div class="uv">${uv}</div>
+    </div>`;
+  }
+  const nPlatforms = Object.keys(_pd).length || 1;
+  let rows = `<div class="cmp-hdr">
+    <span style="color:var(--muted);font-size:9px;">${orderSummary}</span>
+    <span class="them">Current</span>
+    <span></span>
+    <span class="us">${hdrLabel}</span>
+  </div>`;
+  ['dd','ue','gh'].forEach(p => {
+    if (!_pd[p]) return;
+    const pd = _pd[p];
+    const name = {dd:'DoorDash', ue:'Uber Eats', gh:'Grubhub'}[p];
+    rows += cRow(`${name} commission (${pd.rate}% → ${useRate}%)`, fmt(pd.comm), fmt(D.totalRev * (useRate / 100) / nPlatforms));
+    if (pd.puComm > 0) rows += cRow(`${name} pickup (6% → 0%)`, fmt(pd.puComm), '$0 · Free pickup');
+  });
+  if (D.wkAds > 0) rows += cRow('Paid promotions / ads', fmt(D.wkAds), '$0 · Equal placement');
+  if (D.wkRef > 0) rows += cRow('Auto-refunds absorbed', fmt(D.wkRef), '$0 · Evidence-based');
+  if (D.wkOth > 0) rows += cRow('Other platform fees', fmt(D.wkOth), '$0');
+  rows += cRow('Total weekly cost to platform', fmt(D.totalWkCost), fmt(w.total), true);
+  rows += cRow('What you keep per week', fmt(D.wkKeep), fmt(w.keep), true);
+  document.getElementById('cmptable-el').innerHTML = rows;
+}
+
+
+
+function updateYTK(tier, w, wPost) {
+  document.getElementById('ytk-box').style.display = 'block';
+  document.getElementById('report-actions').style.display = 'block';
+  document.getElementById('ytk-cur-wk').textContent = fmt(D.wkKeep) + '/wk';
+  document.getElementById('ytk-cur-yr').textContent = fmt(D.wkKeep * 52) + '/year';
+  // YTK initial state — phases handle updates via switchPhase
+  const _p0 = tier.phases && tier.phases[0];
+  document.getElementById('ytk-wgi-lbl').textContent = _p0 ? `${_p0.label} (${_p0.sub})` : `WeGetIt ${tier.rate}%`;
+  document.getElementById('ytk-wgi-wk').textContent = fmt(w.keep) + '/wk';
+  document.getElementById('ytk-wgi-yr').textContent = fmt(w.keep * 52) + '/year';
+  const netSavings = w.savYr;
+  const ytkDiffEl = document.getElementById('ytk-diff');
+  const ytkLblEl = document.getElementById('ytk-diff-lbl');
+  ytkDiffEl.textContent = (netSavings >= 0 ? '+' : '−') + fmt(Math.abs(netSavings)) + '/year';
+  ytkDiffEl.style.color = netSavings >= 0 ? 'var(--gold)' : 'var(--accent)';
+  ytkLblEl.textContent = 'Difference per year';
+}
+
+function buildReportData() {
+  const today = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const pd = D.platData || {};
+  const adsYes = document.getElementById('ads-yes').classList.contains('sel');
+  const refYes  = document.getElementById('ref-yes').classList.contains('sel');
+  const othYes  = document.getElementById('oth-yes').classList.contains('sel');
+  const adsPct  = adsYes ? gn('ads-pct')  : 0;
+  const adsFlat = adsYes ? gn('monthly-ads') : 0;
+  const refPct  = refYes ? gn('ref-pct')  : 0;
+  const refCnt  = refYes ? gn('monthly-refunds') : 0;
+  const refAvg  = refYes ? gn('avg-refund') : 0;
+  const othFlat = othYes ? gn('other-fees') : 0;
+  const adsDesc = !adsYes ? 'None' : adsPct > 0 ? `${adsPct}% of revenue` : `$${adsFlat}/mo flat`;
+  const refDesc = !refYes ? 'None' : refPct > 0 ? `${refPct}% of revenue` : `${refCnt} × $${refAvg} avg/mo`;
+  const othDesc = !othYes ? 'None' : `$${othFlat}/mo`;
+  const phases  = selTier ? selTier.phases.map(ph => ({...ph, w: calcWGI(ph.rate)})) : [];
+  return {today, pd, adsDesc, refDesc, othDesc, phases};
+}
+
+function generateReportHTML() {
+  if (!D.totalWkRev) return '<p>No data entered.</p>';
+  const {today, pd, adsDesc, refDesc, othDesc, phases} = buildReportData();
+  const names = {dd:'DoorDash', ue:'Uber Eats', gh:'Grubhub'};
+
+  const platformRows = ['dd','ue','gh'].filter(p => pd[p]).map(p =>
+    `<tr><td>${names[p]}</td><td>${pd[p].rate}% commission</td><td>${pd[p].ord} delivery/wk</td><td>$${pd[p].aov.toFixed(0)} avg</td><td>${pd[p].pu} pickup/wk</td></tr>`
+  ).join('');
+
+  const costDetailRows = ['dd','ue','gh'].filter(p => pd[p]).map(p => {
+    let r = `<tr><td>${names[p]} commission (${pd[p].rate}%)</td><td class="num bad">${fmt(pd[p].comm)}/wk</td></tr>`;
+    if (pd[p].puComm > 0) r += `<tr><td>${names[p]} pickup commission (6%)</td><td class="num bad">${fmt(pd[p].puComm)}/wk</td></tr>`;
+    return r;
+  }).join('') +
+    (D.wkAds > 0 ? `<tr><td>Paid promotions / ads (${adsDesc})</td><td class="num bad">${fmt(D.wkAds)}/wk</td></tr>` : '') +
+    (D.wkRef > 0 ? `<tr><td>Auto-refunds absorbed (${refDesc})</td><td class="num bad">${fmt(D.wkRef)}/wk</td></tr>` : '') +
+    (D.wkOth > 0 ? `<tr><td>Other platform fees (${othDesc})</td><td class="num bad">${fmt(D.wkOth)}/wk</td></tr>` : '');
+
+  const phaseBlocks = selTier ? phases.map((ph,i) => {
+    const sign = ph.w.savYr >= 0 ? '+' : '−';
+    const color = i === 0 ? '#e8441a' : '#3dbfb8';
+    return `<div class="phase-block">
+      <div class="phase-title">${i+1}. ${ph.label} <span class="phase-rate">${ph.sub}</span></div>
+      <table class="inner-tbl">
+        <tr><td>Commission (${ph.rate}%)</td><td class="num">$${(D.totalRev * ph.rate / 100).toFixed(0)}/wk</td></tr>
+        <tr><td>Pickup orders</td><td class="num">$0 (free)</td></tr>
+        <tr><td>Ads / refunds / fees</td><td class="num">$0</td></tr>
+        <tr class="total-row"><td>You keep</td><td class="num" style="color:${color};font-weight:700;">${fmt(ph.w.keep)}/wk · ${fmt(ph.w.keep*52)}/yr</td></tr>
+        <tr><td>vs your current plan</td><td class="num" style="color:${ph.w.savYr>=0?'#3dbfb8':'#e8441a'};font-weight:700;">${sign}${fmt(Math.abs(ph.w.savYr))}/yr</td></tr>
+      </table>
+    </div>`;
+  }).join('') : '<p>No tier selected.</p>';
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WeGetIt Cost Analysis · ${today}</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; background:#fff; color:#111; font-size:13px; line-height:1.5; }
+  .page { max-width:700px; margin:0 auto; padding:32px 28px 48px; }
+
+  /* HEADER */
+  .header { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:3px solid #e8441a; padding-bottom:12px; margin-bottom:24px; }
+  .logo { font-size:32px; font-weight:900; letter-spacing:2px; color:#111; }
+  .logo span { color:#e8441a; }
+  .header-right { text-align:right; font-size:11px; color:#888; line-height:1.6; }
+
+  /* SECTIONS */
+  h2 { font-size:11px; text-transform:uppercase; letter-spacing:2px; color:#888; margin:20px 0 8px; }
+  h2.teal { color:#3dbfb8; }
+  h2.red  { color:#e8441a; }
+  h2.gold { color:#b8860b; }
+
+  /* TABLES */
+  table { width:100%; border-collapse:collapse; margin-bottom:12px; }
+  th { background:#f5f5f5; text-align:left; padding:7px 10px; font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#888; border-bottom:1px solid #eee; }
+  td { padding:7px 10px; border-bottom:1px solid #f0f0f0; }
+  .num { text-align:right; font-weight:600; font-family: monospace; }
+  .bad { color:#e8441a; }
+
+  /* COST SUMMARY */
+  .summary-box { border:2px solid #e8441a; padding:16px 20px; margin:12px 0; display:flex; gap:32px; flex-wrap:wrap; }
+  .sum-item { }
+  .sum-num  { font-size:28px; font-weight:900; color:#e8441a; line-height:1; }
+  .sum-lbl  { font-size:10px; color:#888; text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
+
+  /* WGI PHASES */
+  .phase-block { border:1px solid #eee; padding:14px 16px; margin-bottom:10px; }
+  .phase-title { font-size:13px; font-weight:700; color:#111; margin-bottom:8px; }
+  .phase-rate  { font-size:11px; color:#888; font-weight:400; margin-left:6px; }
+  .inner-tbl   { width:100%; }
+  .inner-tbl td { padding:4px 0; font-size:12px; border-bottom:none; }
+  .total-row td { border-top:1px solid #eee; padding-top:8px; margin-top:4px; }
+
+  /* DIFFERENTIATORS */
+  .diff-list { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin:10px 0; }
+  .diff-item { display:flex; gap:8px; font-size:12px; color:#555; }
+  .diff-icon { color:#3dbfb8; font-weight:700; flex-shrink:0; }
+
+  /* FOOTER */
+  .footer { margin-top:32px; padding-top:16px; border-top:1px solid #eee; font-size:11px; color:#aaa; text-align:center; line-height:1.8; }
+
+  /* PRINT */
+  @media print {
+    body { font-size:12px; }
+    .page { padding:16px; max-width:100%; }
+    .no-print { display:none !important; }
+    .phase-block { break-inside:avoid; }
+    table { break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">We<span>Get</span>It</div>
+    <div class="header-right">Restaurant Cost Analysis<br>${today}<br>Confidential — Not for Distribution</div>
+  </div>
+
+  <!-- PLATFORM DETAILS -->
+  <h2>Your Platform Details</h2>
+  <table>
+    <thead><tr><th>Platform</th><th>Commission</th><th>Delivery Orders</th><th>Avg Order Value</th><th>Pickup Orders</th></tr></thead>
+    <tbody>${platformRows || '<tr><td colspan="5" style="color:#aaa;">No platform data entered</td></tr>'}</tbody>
+  </table>
+
+  <h2>Additional Costs</h2>
+  <table>
+    <tbody>
+      <tr><td>Paid promotions / ads</td><td class="num">${adsDesc}</td></tr>
+      <tr><td>Auto-refunds absorbed</td><td class="num">${refDesc}</td></tr>
+      <tr><td>Other platform fees</td><td class="num">${othDesc}</td></tr>
+    </tbody>
+  </table>
+
+  <!-- CURRENT COST BREAKDOWN -->
+  <h2 class="red">Your True Cost Breakdown</h2>
+  <table>
+    <thead><tr><th>Cost Item</th><th style="text-align:right;">Weekly Amount</th></tr></thead>
+    <tbody>
+      ${D.totalRev > 0 ? `<tr><td>Total delivery revenue</td><td class="num">${fmt(D.totalRev)}/wk</td></tr>` : ''}
+      ${D.totalPickupRev > 0 ? `<tr><td>Total pickup revenue</td><td class="num">${fmt(D.totalPickupRev)}/wk</td></tr>` : ''}
+      ${costDetailRows}
+    </tbody>
+  </table>
+
+  <div class="summary-box">
+    <div class="sum-item">
+      <div class="sum-num">${fp(D.trueRate)}</div>
+      <div class="sum-lbl">True all-in cost rate</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-num" style="color:#e8441a;">${fmt(D.totalWkCost)}/wk</div>
+      <div class="sum-lbl">To platform · ${fmt(D.totalWkCost*52)}/yr</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-num" style="color:#111;">${fmt(D.wkKeep)}/wk</div>
+      <div class="sum-lbl">You keep · ${fmt(D.wkKeep*52)}/yr</div>
+    </div>
+  </div>
+
+  <!-- WEGETIT COMPARISON -->
+  <h2 class="teal">WeGetIt Comparison${selTier ? ' — ' + selTier.out : ''}</h2>
+  ${phaseBlocks}
+
+  <!-- DIFFERENTIATORS -->
+  <h2 class="teal">What's Different on WeGetIt</h2>
+  <div class="diff-list">
+    <div class="diff-item"><span class="diff-icon">✓</span><span>0% commission on pickup orders</span></div>
+    <div class="diff-item"><span class="diff-icon">✓</span><span>No auto-refunds — you're heard first</span></div>
+    <div class="diff-item"><span class="diff-icon">✓</span><span>Call your customer directly to fix orders</span></div>
+    <div class="diff-item"><span class="diff-icon">✓</span><span>No marketing fees — equal placement</span></div>
+    <div class="diff-item"><span class="diff-icon">✓</span><span>Full menu control — your prices, your call</span></div>
+    <div class="diff-item"><span class="diff-icon">✓</span><span>Cancel to 25% standard any time</span></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    WeGetIt · Dearborn, MI · Trademark Pending<br>
+    wegetit.deliver@gmail.com<br>
+    Numbers based on data you provided. Contact us to confirm founding partner availability.
+  </div>
+
+  <!-- PRINT BUTTON (hidden when printing) -->
+  <div class="no-print" style="text-align:center;margin-top:24px;">
+    <button onclick="window.print()" style="font-family:monospace;font-size:11px;text-transform:uppercase;letter-spacing:2px;padding:12px 28px;border:1px solid #3dbfb8;background:none;color:#3dbfb8;cursor:pointer;">Save as PDF ↓</button>
+    <p style="font-size:11px;color:#aaa;margin-top:8px;">In the print dialog → Destination → Save as PDF</p>
+  </div>
+
+</div>
+<script>
+  // Auto-trigger print after render
+  window.onload = function() { setTimeout(function(){ window.print(); }, 600); };
+<\/script>
+</body>
+</html>`;
+}
+
+function generateTextSummary() {
+  if (!D.totalWkRev) return 'No data entered yet.';
+  const {today, adsDesc, refDesc, phases} = buildReportData();
+  const line = '─'.repeat(32);
+  let txt = `WeGetIt · Restaurant Cost Analysis\n${today}\n${line}\n`;
+  txt += `YOUR TRUE COST\n`;
+  txt += `All-in rate: ${fp(D.trueRate)}\n`;
+  txt += `You pay: ${fmt(D.totalWkCost)}/wk (${fmt(D.totalWkCost*52)}/yr)\n`;
+  txt += `You keep: ${fmt(D.wkKeep)}/wk (${fmt(D.wkKeep*52)}/yr)\n`;
+  txt += `${line}\n`;
+  if (selTier) {
+    txt += `WEGETIT — ${selTier.out.toUpperCase()}\n`;
+    phases.forEach((ph,i) => {
+      const sign = ph.w.savYr >= 0 ? '+' : '−';
+      txt += `${i+1}. ${ph.label} (${ph.sub}): keep ${fmt(ph.w.keep)}/wk · ${sign}${fmt(Math.abs(ph.w.savYr))}/yr\n`;
+    });
+  }
+  txt += `${line}\n`;
+  txt += `0% pickup · No auto-refunds · Call customer directly\nCancel to 25% any time\nwegetit.deliver@gmail.com`;
+  return txt;
+}
+
+function downloadReport() {
+  if (!D.totalWkRev) { alert('Please fill in your numbers first.'); return; }
+  const html = generateReportHTML();
+  const w = window.open('', '_blank', 'width=780,height=900');
+  if (!w) { alert('Please allow pop-ups for this page to download the report.'); return; }
+  w.document.write(html);
+  w.document.close();
+}
+
+function emailReport() {
+  const summary = generateTextSummary();
+  window.open('mailto:?subject=' + encodeURIComponent('WeGetIt Restaurant Cost Analysis') + '&body=' + encodeURIComponent(summary));
+}
+
+function textReport() {
+  const summary = generateTextSummary();
+  window.open('sms:?body=' + encodeURIComponent(summary));
+}
+</script>
+</body>
+</html>

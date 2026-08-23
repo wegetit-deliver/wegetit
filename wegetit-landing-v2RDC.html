@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080808">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>WeGetIt — Coming to Dearborn</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808; --white: #f4f1ec; --accent: #e8441a; --accent2: #f5a623;
+    --teal: #3dbfb8; --grey: #141414; --mid: #1e1e1e; --border: #2a2a2a;
+    --muted: #555; --dim: #888;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: var(--black); color: var(--white); font-family: 'DM Sans', sans-serif; }
+  .shell { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+  /* HEADER */
+  .header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 18px 40px; border-bottom: 1px solid var(--border); background: rgba(8,8,8,0.92); backdrop-filter: blur(8px); }
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 3px; color: var(--white); line-height: 1; }
+  .logo span { color: var(--accent); }
+  .header-right { display: flex; align-items: center; gap: 18px; }
+  .header-sub { font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); }
+  .cta-sticky { font-family: 'DM Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; padding: 11px 22px; border: none; cursor: pointer; background: var(--accent); color: var(--white); transition: opacity 0.15s, transform 0.15s; white-space: nowrap; }
+  .cta-sticky:hover { opacity: 0.88; transform: translateY(-1px); }
+  /* TOP TABS */
+  .tabs-top { position: fixed; top: 65px; left: 0; right: 0; display: flex; border-bottom: 1px solid var(--border); background: rgba(8,8,8,0.96); backdrop-filter: blur(8px); z-index: 90; }
+  .tab-top { flex: 1; font-family: 'DM Mono', monospace; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); padding: 19px 12px 9px; cursor: pointer; border-bottom: 3px solid transparent; transition: color 0.15s, border-color 0.15s; background: none; border-top: none; border-left: none; border-right: none; text-align: center; font-weight: 600; }
+  .tab-top:hover { color: var(--white); background: var(--grey); }
+  .tab-top.active-restaurant { color: var(--teal); border-bottom-color: var(--teal); }
+  .tab-top.active-driver { color: var(--accent2); border-bottom-color: var(--accent2); }
+  .tab-top.active-customer { color: var(--accent); border-bottom-color: var(--accent); }
+  /* PANELS */
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .panel-inner { max-width: 720px; margin: 0 auto; padding: 130px 40px 56px; width: 100%; }
+  /* HEADLINE */
+  .headline { font-family: 'Bebas Neue', sans-serif; font-size: clamp(46px, 7.5vw, 84px); line-height: 0.95; letter-spacing: 1px; margin-bottom: 24px; }
+  .headline .hl-c { color: var(--accent); }
+  .headline .hl-d { color: var(--accent2); }
+  .headline .hl-r { color: var(--teal); }
+  /* BODY */
+  .body-copy { font-size: 17px; line-height: 1.75; color: var(--dim); margin-bottom: 16px; max-width: 580px; }
+  .body-copy strong { color: var(--white); font-weight: 500; }
+  /* HERO SUBLINES — shared across panels */
+  .hero-sub { font-size: 18px; line-height: 1.4; color: var(--dim); margin-bottom: 6px; max-width: 580px; font-weight: 400; }
+  .hero-sub strong { color: var(--white); font-weight: 600; }
+  .hero-sub2 { font-size: 15px; line-height: 1.5; color: var(--white); font-weight: 500; margin-bottom: 22px; max-width: 580px; }
+
+  /* STEP LIST */
+  .step-list { display: flex; flex-direction: column; gap: 0; margin: 28px 0 36px; max-width: 600px; }
+  .step-row { display: flex; align-items: flex-start; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .step-row:first-child { padding-top: 0; }
+  .step-icon { flex-shrink: 0; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: var(--mid); border-radius: 50%; font-size: 16px; }
+  .step-text { font-size: 15.5px; line-height: 1.6; color: var(--dim); padding-top: 5px; }
+  .step-text strong { color: var(--white); font-weight: 500; }
+  /* COMPARE */
+  .compare-wrap { margin: 32px 0 36px; border: 1px solid var(--border); background: var(--grey); max-width: 600px; }
+  .compare-header { display: grid; grid-template-columns: 1fr 1fr; }
+  .compare-header div { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; padding: 16px 18px; text-align: center; }
+  .compare-header .them { color: #4a90d9; border-bottom: 2px solid #4a90d9; border-right: 1px solid var(--border); background: rgba(74,144,217,0.06); }
+  .compare-header .us { border-bottom: 2px solid; }
+  .compare-header .us.c { color: var(--accent); border-color: var(--accent); background: rgba(232,68,26,0.06); }
+  .compare-header .us.r { color: var(--teal); border-color: var(--teal); background: rgba(61,191,184,0.06); }
+  .compare-row { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border); }
+  .compare-row:last-child { border-bottom: none; }
+  .compare-cell { padding: 16px 18px; font-size: 14px; line-height: 1.55; }
+  .compare-cell.them { color: var(--muted); border-right: 1px solid var(--border); }
+  .compare-cell.them::before { content: '✕  '; color: #4a90d9; font-weight: 700; }
+  .compare-cell.us { color: var(--white); }
+  .compare-cell.us::before { content: '✓  '; }
+  .compare-cell.us.c::before { color: var(--accent); }
+  .compare-cell.us.r::before { color: var(--teal); }
+  /* PROOF */
+  .proof { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px; }
+  .proof-item { display: flex; flex-direction: column; gap: 2px; }
+  .proof-num { font-family: 'Bebas Neue', sans-serif; font-size: 30px; line-height: 1.05; letter-spacing: 1px; }
+  .proof-num.c { color: var(--accent); }
+  .proof-num.d { color: var(--accent2); }
+  .proof-num.r { color: var(--teal); }
+  .proof-label { font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); line-height: 1.4; }
+  /* FORM */
+  .form-wrap { display: flex; gap: 0; max-width: 540px; }
+  .form-wrap input[type="email"] { flex: 1; background: var(--mid); border: 1px solid var(--border); border-right: none; color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 17px; padding: 20px 22px; outline: none; border-radius: 0; -webkit-appearance: none; }
+  .form-wrap input[type="email"]::placeholder { color: var(--muted); }
+  .form-wrap input[type="email"]:focus { border-color: var(--accent); }
+  .form-wrap button { font-family: 'DM Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; padding: 20px 28px; border: none; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
+  .form-wrap button:hover { opacity: 0.85; }
+  .btn-c { background: var(--accent); color: var(--white); }
+  .btn-d { background: var(--accent2); color: var(--black); }
+  .btn-r { background: var(--teal); color: var(--black); }
+  .form-note { margin-top: 12px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.5px; }
+  /* SUCCESS */
+  .success-msg { display: none; font-family: 'DM Mono', monospace; font-size: 13px; letter-spacing: 1px; padding: 18px 0; }
+  .success-msg.c { color: var(--accent); }
+  .success-msg.d { color: var(--accent2); }
+  .success-msg.r { color: var(--teal); }
+  /* FAQ */
+  .faq-section { border-top: 1px solid var(--border); padding: 56px 40px 64px; background: var(--grey); }
+  .faq-inner { max-width: 720px; margin: 0 auto; }
+  .faq-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 1px; margin-bottom: 28px; }
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-q { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; cursor: pointer; font-size: 15px; font-weight: 500; color: var(--white); }
+  .faq-q .faq-toggle { font-family: 'DM Mono', monospace; color: var(--accent2); font-size: 16px; flex-shrink: 0; margin-left: 16px; }
+  .faq-a { display: none; padding: 0 0 20px; font-size: 14.5px; line-height: 1.7; color: var(--dim); max-width: 600px; }
+  .faq-item.open .faq-a { display: block; }
+  .faq-item.open .faq-toggle { transform: rotate(45deg); }
+  /* FOOTER */
+  .footer { border-top: 1px solid var(--border); padding: 28px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; position: relative; z-index: 1; }
+  .footer-left { font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: #333; }
+  .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+  .footer-links a { font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #444; text-decoration: none; transition: color 0.2s; cursor: pointer; }
+  .footer-links a:hover { color: var(--dim); }
+  /* LEGAL MODAL */
+  .legal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; padding: 24px; }
+  .legal-overlay.open { display: flex; }
+  .legal-box { background: var(--grey); border: 1px solid var(--border); max-width: 600px; max-height: 80vh; overflow-y: auto; padding: 40px; }
+  .legal-box h2 { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 1px; margin-bottom: 18px; }
+  .legal-box p { font-size: 14px; line-height: 1.75; color: var(--dim); margin-bottom: 14px; }
+  .legal-close { font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--accent2); cursor: pointer; margin-top: 8px; display: inline-block; }
+  /* Hide Netlify badge */
+  [class*='netlify-badge'], #netlify-badge, .netlify-badge, a[href*='netlify.com/?utm'] { display: none !important; }
+
+  /* MOBILE */
+  @media (max-width: 600px) {
+    .header { position: fixed; top: 0; left: 0; right: 0; padding: 14px 20px; }
+    .header-sub { display: none; }
+
+    .tabs-top { position: fixed; top: 55px; left: 0; right: 0; z-index: 89; }
+    .tab-top { font-size: 10px; padding: 15px 6px 7px; letter-spacing: 0.5px; border-bottom-width: 2px; }
+    .compare-header { border-bottom: 1px solid var(--border); }
+    .compare-header .them, .compare-header .us { border-bottom: none; }
+    .compare-header div { font-size: 8.5px; padding: 11px 6px; letter-spacing: 0.8px; white-space: nowrap; }
+    .compare-cell { font-size: 13px; padding: 13px 12px; }
+    .form-wrap { flex-direction: column; }
+    .form-wrap input[type="email"] { border-right: 1px solid var(--border); border-bottom: none; font-size: 16px; padding: 18px 16px; }
+    .form-wrap button { width: 100%; text-align: center; padding: 18px 16px; }
+    .panel-inner { padding: 112px 20px 48px; }
+    .hero-sub { font-size: 15.5px; }
+    .hero-sub2 { font-size: 13.5px; margin-bottom: 18px; }
+    .step-text { font-size: 14.5px; }
+    .proof { gap: 10px; }
+    .proof-num { font-size: 22px; }
+    .proof-label { font-size: 7.5px; letter-spacing: 1px; }
+    .faq-section { padding: 40px 20px 48px; }
+    .footer { padding: 20px; flex-direction: column; align-items: flex-start; }
+  }
+</style>
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init('VheRjidR0uD9tBt-M');</script>
+<!-- PostHog Analytics -->
+<script>
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+  posthog.init('phc_nBccqduKkx5qfxpt5nxgvp8kyoujqj4d432pgLubff4p', {api_host: 'https://us.i.posthog.com'});
+</script>
+</head>
+<body>
+<div class="shell">
+
+  <header class="header">
+    <div class="logo">We<span>Get</span>It</div>
+    <div class="header-right">
+      <span class="header-sub">Launching in Dearborn, MI</span>
+      <button class="cta-sticky" onclick="scrollToForm()">Early Access</button>
+    </div>
+  </header>
+
+  <nav class="tabs-top">
+    <button class="tab-top active-restaurant" onclick="switchTab('restaurant', this)">Restaurants</button>
+    <button class="tab-top" onclick="switchTab('driver', this)">Drivers</button>
+    <button class="tab-top" onclick="switchTab('customer', this)">Customers</button>
+  </nav>
+
+  <!-- RESTAURANT -->
+  <div class="panel active" id="panel-restaurant">
+    <div class="panel-inner">
+      <h1 class="headline">Fund your<br>restaurant.<br><span class="hl-r">Not their app.</span></h1>
+      <p class="body-copy" style="font-size:15.5px;">
+        DoorDash takes 30–40% per order. You raise your prices to <strong style="color:var(--accent2);">survive</strong>. <strong style="color:var(--accent);">Customers blame you.</strong> <strong style="color:var(--white);">Everyone loses except the platform.</strong><br><br>
+        WeGetIt charges 25%, marketing included. <strong>0% forever for first 100.</strong>
+      </p>
+      <div class="compare-wrap">
+        <div class="compare-header">
+          <div class="them">DoorDash / Uber Eats</div>
+          <div class="us r">WeGetIt</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell them">30–40% commission</div>
+          <div class="compare-cell us r">25%, or <strong>0% forever</strong> as a founding partner</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell them">Pay-to-rank marketing fees</div>
+          <div class="compare-cell us r">No marketing fee. Equal placement.</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell them">Auto-refunds, no questions</div>
+          <div class="compare-cell us r">You’re heard before you’re charged</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell them">Can’t contact customer to fix order</div>
+          <div class="compare-cell us r">Call customer directly to fix any order</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell them">Routed through support — transfers and holds during rush</div>
+          <div class="compare-cell us r">Direct line. No transfers, no wait.</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell them">6% commission on pickup orders</div>
+          <div class="compare-cell us r">0% pickup fee. Always.</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell them">Platform controls your menu</div>
+          <div class="compare-cell us r">Full menu control.</div>
+        </div>
+      </div>
+      <div class="proof">
+        <div class="proof-item"><div class="proof-num r">0%</div><div class="proof-label">Commission forever.<br>Founding partners.</div></div>
+        <div class="proof-item"><div class="proof-num r">NO</div><div class="proof-label">Marketing fee.<br>Equal placement.</div></div>
+        <div class="proof-item"><div class="proof-num r">0%</div><div class="proof-label">Pickup fee.<br>Always.</div></div>
+      </div>
+      <div id="form-restaurant" class="form-wrap">
+        <input type="email" id="email-restaurant" placeholder="Your restaurant email" autocomplete="email">
+        <button class="btn-r" onclick="submit('restaurant')">Apply to Be a Founding Partner</button>
+      </div>
+      <div class="success-msg r" id="success-restaurant">✓ Application received. We’ll be in touch about founding partner availability.</div>
+      <p class="form-note" id="note-restaurant">Limited founding spots in Dearborn. First 100 restaurants lock in 0% commission forever.</p>
+    </div>
+  </div>
+
+  <!-- DRIVER -->
+  <div class="panel" id="panel-driver">
+    <div class="panel-inner">
+      <h1 class="headline">We take <span class="hl-d">$1</span>.<br>You get<br>the rest.</h1>
+      <p class="hero-sub">
+        WeGetIt keeps exactly $1 per order.<br><strong style="color:var(--accent2);">Everything else goes to you.</strong>
+      </p>
+      <p class="hero-sub2">
+        Bigger <strong style="color:var(--accent2);">base pay</strong>, bigger <strong style="color:var(--accent2);">tips</strong>. How?
+      </p>
+      <div class="step-list" style="margin-bottom:18px;">
+        <div class="step-row">
+          <div class="step-icon">🫂</div>
+          <div class="step-text">Restaurants charged <strong style="color:var(--white);">less</strong> means customers pay <strong style="color:var(--white);">less</strong></div>
+        </div>
+        <div class="step-row">
+          <div class="step-icon">💸</div>
+          <div class="step-text">Customers left with <strong style="color:var(--white);">more to tip</strong>, instead of watching their money disappear in fees before even reaching the tip screen.</div>
+        </div>
+      </div>
+      <div class="step-list">
+        <div class="step-row">
+          <div class="step-icon">📍</div>
+          <div class="step-text">Customers see exactly how much to tip to get you to <strong>$2/mile.</strong></div>
+        </div>
+        <div class="step-row">
+          <div class="step-icon">🎣</div>
+          <div class="step-text"><strong style="color:var(--white);">No tip baiting.</strong> Customers see the suggested tip <strong style="color:var(--accent2);">before</strong> they order — not buried after checkout when they’re already done.</div>
+        </div>
+        <div class="step-row">
+          <div class="step-icon">⭐</div>
+          <div class="step-text">You see your offer rated <strong>Low / OK / Good / Great</strong> the moment it hits your screen.</div>
+        </div>
+        <div class="step-row">
+          <div class="step-icon">🧮</div>
+          <div class="step-text"><strong style="color:var(--white);">No</strong> mental math.</div>
+        </div>
+        <div class="step-row">
+          <div class="step-icon">⏭️</div>
+          <div class="step-text"><strong style="color:var(--white);">No</strong> algorithm punishment for skipping bad orders.</div>
+        </div>
+        <div class="step-row">
+          <div class="step-icon">🏠</div>
+          <div class="step-text">Set your home address and we route orders <strong style="color:var(--white);">on the way home.</strong></div>
+        </div>
+      </div>
+      <div class="proof" style="margin-top:36px;">
+        <div class="proof-item"><div class="proof-num d">$2/mi</div><div class="proof-label">Tip target shown<br>to every customer</div></div>
+        <div class="proof-item"><div class="proof-num d">NO</div><div class="proof-label">Penalty for<br>skipping orders</div></div>
+        <div class="proof-item"><div class="proof-num d">$1</div><div class="proof-label">WeGetIt keeps.<br>Rest is yours.</div></div>
+      </div>
+      <div id="form-driver" class="form-wrap">
+        <input type="email" id="email-driver" placeholder="Your email address" autocomplete="email">
+        <button class="btn-d" onclick="submit('driver')">Join the Driver Waitlist</button>
+      </div>
+      <div class="success-msg d" id="success-driver">✓ You’re on the list. Founding drivers get priority access and earnings.</div>
+      <p class="form-note" id="note-driver">Launching in Dearborn, MI. Founding drivers earn more from day one.</p>
+    </div>
+  </div>
+
+  <!-- CUSTOMER -->
+  <div class="panel" id="panel-customer">
+    <div class="panel-inner">
+      <h1 class="headline">Pay<br><span class="hl-c">regular</span><br>prices.</h1>
+      <p class="hero-sub" style="color:var(--white); font-weight:600;">
+        Actual restaurant price <strong style="color:var(--accent);">+ $1 delivery</strong><br>
+        <span class="hero-sub2" style="display:block; margin:6px 0 0;">That’s it.<sup style="color:var(--accent2);font-size:11px;"> †</sup></span>
+      </p>
+      <div class="step-list" style="margin-bottom:24px;">
+        <div class="step-row">
+          <div class="step-icon">⚖️</div>
+          <div class="step-text">In-store price <strong style="color:var(--white);font-weight:700;">=</strong> in-app price</div>
+        </div>
+        <div class="step-row">
+          <div class="step-icon">👻</div>
+          <div class="step-text">You actually have room to tip your driver, instead of watching your <strong style="color:var(--white);">money disappear</strong> in fees before you even get to the tip screen.</div>
+        </div>
+        <div class="step-row">
+          <div class="step-icon">📍</div>
+          <div class="step-text">We cover driver’s base. Your tip just closes the gap to $2/mile — <strong style="color:var(--white);">calculated for you</strong>. Tip more, tip less, no guessing, no guilt.</div>
+        </div>
+        <div class="step-row">
+          <div class="step-icon">🧘‍♀️</div>
+          <div class="step-text">Markup starts with the apps (40% cut. <strong style="color:var(--accent);">Highway robbery</strong>). You blame restaurants. Drivers blame you. <strong style="color:var(--white);">No more blame game.</strong></div>
+        </div>
+      </div>
+      <div class="compare-wrap">
+        <div class="compare-header">
+          <div class="them">DoorDash / Uber Eats</div>
+          <div class="us c">WeGetIt</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell them">Menu marked up 15–20%</div>
+          <div class="compare-cell us c">Regular menu price</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell them">$2–5 delivery fee</div>
+          <div class="compare-cell us c">$1 delivery fee</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell them">Vague 5–15% “service fee” — hides Stripe, keeps most</div>
+          <div class="compare-cell us c"><sup style="color:var(--accent2);font-size:10px;">†</sup> No “service fee” — Stripe, tax, exact &amp; itemized. No fee bloat.</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell them">$27.76 total on an $18.58 meal</div>
+          <div class="compare-cell us c">$22.33 total. Same meal.</div>
+        </div>
+      </div>
+      <div class="proof">
+        <div class="proof-item"><div class="proof-num c">NO</div><div class="proof-label">tip guessing</div></div>
+        <div class="proof-item"><div class="proof-num c">SAME</div><div class="proof-label">prices in-store,<br>in-app</div></div>
+        <div class="proof-item"><div class="proof-num c">NO</div><div class="proof-label">fee bloat</div></div>
+      </div>
+      <div id="form-customer" class="form-wrap">
+        <input type="email" id="email-customer" placeholder="Your email address" autocomplete="email">
+        <button class="btn-c" onclick="submit('customer')">Get Early Access</button>
+      </div>
+      <div class="success-msg c" id="success-customer">✓ You’re on the list. We’ll let you know when Dearborn launches.</div>
+      <p class="form-note" id="note-customer">No spam. No pitch. Just a heads up when we launch.</p>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <section class="faq-section">
+    <div class="faq-inner">
+      <h2 class="faq-title">Questions</h2>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>Is WeGetIt live yet?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">Not yet — we’re launching in Dearborn, MI soon. Sign up above and we’ll email you the moment it’s live in your area.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>Why start in Dearborn?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">Community density, a market that’s been underserved by the big platforms, and Michigan’s regulatory environment make it the right place to prove the model before expanding nationally.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>How is $1 delivery sustainable?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">The math works because we take only enough of what we need from the restaurant, and one dollar from you. No marketing fees, no bloated service fees, no padding.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>What’s the Founding Restaurant Program?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">The first restaurants to join lock in reduced or 0% commission forever as we scale. It rewards the partners who took a chance on us early.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>How do drivers actually get paid more?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">WeGetIt only profits $1 per order — everything else flows to driver base pay. Lower fees also mean customers have more room to tip generously instead of that money disappearing into platform fees before they ever see the tip screen.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>How do I get in touch?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">Email us anytime at wegetit.deliver@gmail.com.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    <div class="footer-left">WeGetIt · Dearborn, MI · 2026 · Trademark pending</div>
+    <div class="footer-links">
+      <a onclick="openLegal('privacy')">Privacy Policy</a>
+      <a onclick="openLegal('terms')">Terms of Service</a>
+      <a href="mailto:wegetit.deliver@gmail.com">wegetit.deliver@gmail.com</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="legal-overlay" id="legal-privacy">
+  <div class="legal-box">
+    <h2>Privacy Policy</h2>
+    <p>WeGetIt (“we,” “us,” or “our”) respects your privacy. This page collects only the email address you voluntarily submit through our early access forms. We use this information solely to notify you when WeGetIt launches in your area.</p>
+    <p>We do not sell, rent, or share your email address with third parties. You may request removal at any time by emailing wegetit.deliver@gmail.com.</p>
+    <p>This site uses PostHog to understand aggregate visitor behavior. This data is anonymized and not linked to your email address.</p>
+    <p>A complete Privacy Policy will be published prior to WeGetIt’s public launch.</p>
+    <span class="legal-close" onclick="closeLegal('privacy')">Close ✕</span>
+  </div>
+</div>
+
+<div class="legal-overlay" id="legal-terms">
+  <div class="legal-box">
+    <h2>Terms of Service</h2>
+    <p>By submitting your email address, you agree to receive communications from WeGetIt regarding our launch. You may unsubscribe at any time.</p>
+    <p>This landing page is for informational purposes only. WeGetIt is not yet operational. No services or transactions are available through this page.</p>
+    <p>All content — copy, branding, and the WeGetIt name — is the property of WeGetIt and may not be reproduced without permission.</p>
+    <p>Complete Terms will be published prior to public launch.</p>
+    <span class="legal-close" onclick="closeLegal('terms')">Close ✕</span>
+  </div>
+</div>
+
+<script>
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-top').forEach(t => t.classList.remove('active-customer','active-driver','active-restaurant'));
+    document.getElementById('panel-' + tab).classList.add('active');
+    btn.classList.add('active-' + tab);
+    window.scrollTo(0, 0);
+    if (typeof posthog !== 'undefined') posthog.capture('tab_view', { tab_name: tab });
+  }
+
+  function scrollToForm() {
+    const activeTab = document.querySelector('.tab-top.active-customer, .tab-top.active-driver, .tab-top.active-restaurant');
+    let tab = 'restaurant';
+    if (activeTab) {
+      if (activeTab.classList.contains('active-customer')) tab = 'customer';
+      else if (activeTab.classList.contains('active-driver')) tab = 'driver';
+    }
+    const form = document.getElementById('form-' + tab);
+    if (form) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function submit(tab) {
+    const input = document.getElementById('email-' + tab);
+    const email = input.value.trim();
+    if (!email || !email.includes('@')) { input.style.borderColor = '#e8441a'; input.focus(); return; }
+    input.style.borderColor = '';
+    document.getElementById('form-' + tab).style.display = 'none';
+    document.getElementById('success-' + tab).style.display = 'block';
+    document.getElementById('note-' + tab).style.display = 'none';
+    if (typeof posthog !== 'undefined') posthog.capture('email_signup', { tab_name: tab });
+    const tmap = { restaurant: 'template_restaurant', driver: 'template_driver', customer: 'template_customer' };
+    if (tmap[tab] && typeof emailjs !== 'undefined') {
+      emailjs.send('service_wegetit', tmap[tab], { to_email: email, tab_name: tab }).catch(e => console.warn(e));
+    }
+  }
+
+  document.querySelectorAll('input[type="email"]').forEach(input => {
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { const tab = this.id.replace('email-',''); submit(tab); }
+    });
+  });
+
+  function toggleFaq(el) {
+    const item = el.parentElement;
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  }
+
+  function openLegal(type) { document.getElementById('legal-' + type).classList.add('open'); }
+  function closeLegal(type) { document.getElementById('legal-' + type).classList.remove('open'); }
+  document.querySelectorAll('.legal-overlay').forEach(o => {
+    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+  });
+</script>
+</body>
+</html>
