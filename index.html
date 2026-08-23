@@ -436,6 +436,21 @@
     if (form) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
+  // Same-device memory so a returning owner keeps one code
+  function rememberedCode(email) {
+    try {
+      const key = 'wgi_code_' + email.toLowerCase();
+      let code = window.localStorage.getItem(key);
+      if (!code) {
+        code = String(Math.floor(100000 + Math.random() * 900000));
+        window.localStorage.setItem(key, code);
+      }
+      return code;
+    } catch (e) {
+      return String(Math.floor(100000 + Math.random() * 900000));
+    }
+  }
+
   function submit(tab) {
     const input = document.getElementById('email-' + tab);
     const email = input.value.trim();
@@ -445,9 +460,21 @@
     document.getElementById('success-' + tab).style.display = 'block';
     document.getElementById('note-' + tab).style.display = 'none';
     if (typeof posthog !== 'undefined') posthog.capture('email_signup', { tab_name: tab });
+
     const tmap = { restaurant: 'template_restaurant', driver: 'template_driver', customer: 'template_customer' };
+    const params = { to_email: email, tab_name: tab };
+
+    if (tab === 'restaurant') {
+      const code = rememberedCode(email);
+      params.restaurant_code = code;
+      params.calculator_link = 'https://wegetit.netlify.app/calculator.html?id=' + code;
+      document.getElementById('success-restaurant').innerHTML =
+        '\u2713 Check your email \u2014 your cost calculator link is on the way.<br>' +
+        '<span style="color:var(--dim);font-size:12px;">Reference code: <strong style="color:var(--white);letter-spacing:2px;">' + code + '</strong></span>';
+    }
+
     if (tmap[tab] && typeof emailjs !== 'undefined') {
-      emailjs.send('service_wegetit', tmap[tab], { to_email: email, tab_name: tab }).catch(e => console.warn(e));
+      emailjs.send('service_wegetit', tmap[tab], params).catch(e => console.warn(e));
     }
   }
 
