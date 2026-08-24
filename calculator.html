@@ -280,6 +280,14 @@ hr.div{border:none;border-top:1px solid var(--border);margin:26px 0;}
   <input type="text" name="weekly_keep">
   <input type="text" name="annual_keep">
   <input type="text" name="tier_viewed">
+  <input type="text" name="god_frp_savings">
+  <input type="text" name="god_perm_savings">
+  <input type="text" name="found_frp_savings">
+  <input type="text" name="found_reward_savings">
+  <input type="text" name="early_frp_savings">
+  <input type="text" name="early_reward_savings">
+  <input type="text" name="standard_savings">
+  <input type="text" name="best_case_savings">
   <input type="text" name="submitted_at">
 </form>
 
@@ -955,7 +963,7 @@ function captureToNetlify(tierLabel) {
     var plats = [];
     ['dd','ue','gh'].forEach(function (k) { if (pd[k]) plats.push(names[k]); });
 
-    function rate(k) { return pd[k] ? pd[k].rate : ''; }
+    function rate(k) { return pd[k] ? (pd[k].rate / 100) : ''; }  // Airtable percent = decimal
     function ord(k)  { return pd[k] ? pd[k].ord  : ''; }
     function pick(k) { return pd[k] ? pd[k].pu   : ''; }
     function r2(n)   { return Math.round((n || 0) * 100) / 100; }
@@ -990,10 +998,21 @@ function captureToNetlify(tierLabel) {
       refunds_weekly: r2(D.wkRef),
       other_fees_weekly: r2(D.wkOth),
       total_weekly_cost: r2(D.totalWkCost),
-      true_cost_rate: r2(D.trueRate),
+      true_cost_rate: Math.round((D.trueRate || 0) * 100) / 10000,  // decimal for Airtable percent
       weekly_keep: r2(D.wkKeep),
       annual_keep: r2(D.wkKeep * 52),
-      tier_viewed: tierLabel || '',
+      god_frp_savings:      r2(calcWGI(40).savYr),
+      god_perm_savings:     r2(calcWGI(0).savYr),
+      found_frp_savings:    r2(calcWGI(35).savYr),
+      found_reward_savings: r2(calcWGI(0).savYr),
+      early_frp_savings:    r2(calcWGI(30).savYr),
+      early_reward_savings: r2(calcWGI(10).savYr),
+      standard_savings:     r2(calcWGI(25).savYr),
+      best_case_savings:    r2(calcWGI(0).savYr),
+      tier_viewed: (function () {
+        var map = { god: 'God Mode', found: 'Founding Member', early: 'Early Adopter', std: 'Standard' };
+        return (selTier && map[selTier.id]) || '';
+      })(),
       submitted_at: new Date().toISOString()
     };
     var body = Object.keys(data).map(function (k) {
