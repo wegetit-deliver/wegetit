@@ -781,7 +781,7 @@ function unlockResults() {
     }).catch(function (e) { console.warn('EmailJS:', e); });
   }
 
-  captureToNetlify('');
+  captureToNetlify(_lastTier || '');
   document.getElementById('email-gate').style.display = 'none';
   document.getElementById('sec-results').classList.add('show');
   document.getElementById('sec-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -933,7 +933,13 @@ let D = {};
 // ── CALCULATE ──
 
 // ── NETLIFY CAPTURE ──
-var _captured = false;
+var _capTimer = null;
+var _lastTier = '';
+function scheduleCapture(tierLabel, delayMs) {
+  _lastTier = tierLabel || _lastTier;
+  if (_capTimer) clearTimeout(_capTimer);
+  _capTimer = setTimeout(function () { captureToNetlify(_lastTier); }, delayMs || 15000);
+}
 function captureToNetlify(tierLabel) {
   try {
     if (!D || !D.totalWkRev) return;
@@ -1058,7 +1064,7 @@ function calculate() {
   }
   document.getElementById('explain-el').innerHTML = explainText;
 
-  captureToNetlify('');
+  scheduleCapture('', 20000);
   if (!restaurantID) {
     var eg = document.getElementById('email-gate');
     eg.style.display = 'block';
@@ -1166,7 +1172,7 @@ function selectFRPTier(i) {
   buildPhaseToggles();
   renderPhase(0);
   document.getElementById('tier-detail').style.display = 'block';
-  captureToNetlify(selTier.out || selTier.id);
+  scheduleCapture(selTier.out || selTier.id, 15000);
   updateYTK(selTier, calcWGI(selTier.phases[0].rate), null);
   document.getElementById('tier-detail').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
@@ -1294,7 +1300,7 @@ function buildCompareTable(tier, w, useRate) {
     if (!_pd[p]) return;
     const pd = _pd[p];
     const name = {dd:'DoorDash', ue:'Uber Eats', gh:'Grubhub'}[p];
-    rows += cRow(`${name} commission (${pd.rate}% → ${useRate}%)`, fmt(pd.comm), fmt(D.totalRev * (useRate / 100) / nPlatforms));
+    rows += cRow(`${name} commission (${pd.rate}% → ${useRate}%)`, fmt(pd.comm), fmt(pd.rev * (useRate / 100)));
     if (pd.puComm > 0) rows += cRow(`${name} pickup (6% → 0%)`, fmt(pd.puComm), '$0 · Free pickup');
   });
   if (D.wkAds > 0) rows += cRow('Paid promotions / ads', fmt(D.wkAds), '$0 · Equal placement');
