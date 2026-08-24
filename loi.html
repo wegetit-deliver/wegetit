@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#e8e8e8">
+<title>WeGetIt — Founding Restaurant Letter of Intent</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>if(typeof emailjs!=="undefined")emailjs.init("VheRjidR0uD9tBt-M");</script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#111; --dim:#555; --light:#888; --rule:#ddd; --accent:#e8441a; --teal:#2a9d96; --gold:#c8860d; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#e8e8e8; font-family:'DM Sans',sans-serif; color:var(--ink); font-size:14px; line-height:1.6; padding:20px 10px 60px; }
+  .page { max-width:720px; margin:0 auto; background:#fff; padding:44px 46px 40px; box-shadow:0 2px 20px rgba(0,0,0,0.1); }
+
+  .hdr { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:24px; gap:14px; }
+  .logo { font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:3px; line-height:1; }
+  .logo span { color:var(--accent); }
+  .hdr-r { text-align:right; font-family:'DM Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:1.5px; color:var(--light); line-height:1.9; }
+
+  h1 { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:1px; margin-bottom:4px; line-height:1.1; }
+  .sub { font-size:12.5px; color:var(--dim); margin-bottom:8px; }
+  .est { font-family:'DM Mono',monospace; font-size:10px; color:var(--light); letter-spacing:1px; margin-bottom:24px; }
+
+  h2 { font-family:'DM Mono',monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:2px; color:var(--accent); margin:28px 0 12px; padding-bottom:5px; border-bottom:1px solid var(--rule); }
+  p { margin-bottom:11px; }
+  ul { margin:0 0 11px 18px; } li { margin-bottom:6px; }
+
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px 20px; }
+  .full { grid-column:1/-1; }
+  label.fl { display:block; font-family:'DM Mono',monospace; font-size:8.5px; text-transform:uppercase; letter-spacing:1.5px; color:var(--light); margin-bottom:4px; }
+  .req::after { content:' *'; color:var(--accent); }
+  input[type=text], input[type=email], input[type=tel], input[type=number], textarea, select {
+    width:100%; font-family:'DM Sans',sans-serif; font-size:15px; padding:11px 12px;
+    border:1px solid #c4c4c4; background:#fcfcfc; color:var(--ink); outline:none; border-radius:2px; -webkit-appearance:none;
+  }
+  input:focus, textarea:focus, select:focus { border-color:var(--accent); background:#fff; }
+  textarea { resize:vertical; min-height:76px; line-height:1.5; }
+
+  .opts { border:1px solid var(--rule); border-radius:2px; overflow:hidden; margin-top:4px; }
+  .opt { display:flex; gap:12px; padding:13px 15px; border-bottom:1px solid var(--rule); align-items:flex-start; cursor:pointer; transition:background .12s; }
+  .opt:last-child { border-bottom:none; }
+  .opt:hover { background:#fafafa; }
+  .opt input { margin-top:3px; flex-shrink:0; width:16px; height:16px; accent-color:var(--accent); }
+  .opt-t { font-weight:600; font-size:14px; margin-bottom:2px; }
+  .opt-t em { font-style:normal; color:var(--accent); }
+  .opt-d { font-size:12px; color:var(--dim); line-height:1.5; }
+
+  .callout { border-left:3px solid var(--teal); background:#f4faf9; padding:13px 16px; margin:14px 0; font-size:12.5px; line-height:1.65; }
+  .nb { border:1.5px solid var(--ink); padding:14px 16px; margin:18px 0; font-size:12.5px; line-height:1.65; background:#fafafa; }
+
+  .affirm { display:flex; gap:12px; align-items:flex-start; padding:15px; border:1.5px solid var(--ink); background:#fff; margin:16px 0; cursor:pointer; }
+  .affirm input { margin-top:2px; width:18px; height:18px; flex-shrink:0; accent-color:var(--accent); }
+  .affirm span { font-size:13px; line-height:1.6; }
+
+  .sigwrap { background:#fafafa; border:1px solid var(--rule); padding:18px; margin-top:6px; }
+  #sig { font-family:'Brush Script MT','Segoe Script',cursive; font-size:26px; padding:12px; letter-spacing:.5px; }
+  .sighint { font-size:11px; color:var(--light); margin-top:6px; }
+
+  .btn { width:100%; font-family:'DM Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:2px; padding:18px; border:none; background:var(--accent); color:#fff; cursor:pointer; font-weight:600; margin-top:18px; }
+  .btn:hover { opacity:.9; }
+  .btn:disabled { background:#bbb; cursor:not-allowed; }
+  .err { color:var(--accent); font-size:12.5px; font-family:'DM Mono',monospace; margin-top:10px; min-height:17px; }
+
+  .foot { margin-top:30px; padding-top:14px; border-top:1px solid var(--rule); font-size:10px; color:var(--light); line-height:1.7; }
+  .hp { position:absolute; left:-9999px; }
+
+  .done { display:none; text-align:center; padding:50px 20px; }
+  .done h2 { border:none; color:var(--teal); font-size:11px; justify-content:center; }
+  .done .big { font-family:'Bebas Neue',sans-serif; font-size:40px; letter-spacing:1px; margin-bottom:10px; }
+  .done p { color:var(--dim); max-width:400px; margin:0 auto 12px; }
+  .done a { display:inline-block; margin-top:16px; font-family:'DM Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; padding:14px 26px; background:var(--gold); color:#fff; text-decoration:none; }
+
+  @media (max-width:620px) {
+    .page { padding:28px 20px; }
+    .grid { grid-template-columns:1fr; }
+    .hdr { flex-direction:column; align-items:flex-start; gap:8px; }
+    .hdr-r { text-align:left; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page" id="doc">
+
+  <div class="hdr">
+    <div class="logo">We<span>Get</span>It</div>
+    <div class="hdr-r">Letter of Intent<br>Founding Restaurant Program<br>Dearborn, MI</div>
+  </div>
+
+  <h1>Founding Restaurant Partner — Letter of Intent</h1>
+  <div class="sub">Non-binding expression of interest in joining WeGetIt as a founding restaurant partner.</div>
+  <div class="est">Takes about 3 minutes · Nothing to print · Nothing owed</div>
+
+  <form name="loi" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="loiform">
+    <input type="hidden" name="form-name" value="loi">
+    <p class="hp"><label>Skip this: <input name="bot-field"></label></p>
+
+    <h2>1 · Restaurant Information</h2>
+    <div class="grid">
+      <div class="full"><label class="fl req" for="f1">Restaurant legal name</label><input type="text" id="f1" name="restaurant_legal_name" required></div>
+      <div class="full"><label class="fl" for="f2">Doing business as (if different)</label><input type="text" id="f2" name="dba"></div>
+      <div class="full"><label class="fl req" for="f3">Street address, city, state, ZIP</label><input type="text" id="f3" name="address" required></div>
+      <div><label class="fl req" for="f4">Owner / authorized representative</label><input type="text" id="f4" name="owner_name" required></div>
+      <div><label class="fl" for="f5">Title</label><input type="text" id="f5" name="title" placeholder="Owner"></div>
+      <div><label class="fl req" for="f6">Email</label><input type="email" id="f6" name="email" required></div>
+      <div><label class="fl req" for="f7">Phone</label><input type="tel" id="f7" name="phone" required></div>
+      <div><label class="fl" for="f8">Current platform(s)</label><input type="text" id="f8" name="current_platforms" placeholder="DoorDash, Uber Eats"></div>
+      <div><label class="fl" for="f9">Current commission rate</label><input type="text" id="f9" name="current_commission" placeholder="30%"></div>
+      <div><label class="fl" for="f10">WeGetIt reference code</label><input type="text" id="f10" name="reference_code" inputmode="numeric" maxlength="6" placeholder="6-digit code"></div>
+      <div><label class="fl req" for="f11">Number of locations</label><input type="number" id="f11" name="location_count" min="1" value="1" required></div>
+    </div>
+
+    <h2>2 · Locations Covered</h2>
+    <p>Founding tier terms apply per location. Each location counts individually toward founding tier availability.</p>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="locations_covered" value="All locations under this ownership" required><span><span class="opt-t">All locations under this ownership</span></span></label>
+      <label class="opt"><input type="radio" name="locations_covered" value="Only the location listed above"><span><span class="opt-t">Only the location listed above</span></span></label>
+      <label class="opt"><input type="radio" name="locations_covered" value="The locations listed below"><span><span class="opt-t">The locations listed below</span></span></label>
+    </div>
+    <div style="margin-top:14px;">
+      <label class="fl" for="f12">Additional locations — name, address, and brand if different</label>
+      <textarea id="f12" name="additional_locations" placeholder="One per line"></textarea>
+    </div>
+    <div class="callout"><strong>Multiple brands or concepts</strong> under the same ownership may be listed above and are each eligible for founding tier terms.</div>
+
+    <h2>3 · Founding Partner Tier</h2>
+    <p>Availability is limited and assigned in order of signed intent.</p>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="tier" value="God Mode — 40% then 0% permanently" required><span>
+        <span class="opt-t">God Mode — 40% during founding period, then <em>0% permanently</em></span>
+        <span class="opt-d">First 100 restaurants. Higher commission during the founding period in exchange for zero commission permanently once WeGetIt expands beyond Dearborn.</span></span></label>
+      <label class="opt"><input type="radio" name="tier" value="Founding Member — 35% then 0% for 12 months"><span>
+        <span class="opt-t">Founding Member — 35% during founding period, then <em>0% for 12 months</em></span>
+        <span class="opt-d">Restaurants 101–250. Zero commission for twelve months following the founding period, then standard 25%.</span></span></label>
+      <label class="opt"><input type="radio" name="tier" value="Early Adopter — 30% then 10% for 12 months"><span>
+        <span class="opt-t">Early Adopter — 30% during founding period, then <em>10% for 12 months</em></span>
+        <span class="opt-d">Restaurants 251–500. Ten percent commission for twelve months, then standard 25%.</span></span></label>
+      <label class="opt"><input type="radio" name="tier" value="Standard — 25% ongoing"><span>
+        <span class="opt-t">Standard — <em>25% ongoing</em></span>
+        <span class="opt-d">No founding period. Standard commission from day one, available at any time.</span></span></label>
+    </div>
+
+    <h2>4 · What WeGetIt Provides</h2>
+    <ul>
+      <li>Commission at the tier selected above, honored for the term described</li>
+      <li><strong>No marketing or promoted-placement fees.</strong> All restaurants receive equal placement</li>
+      <li><strong>No automatic refunds.</strong> You are contacted and heard before any charge-back is applied</li>
+      <li><strong>Direct customer contact</strong> to resolve order issues, without routing through platform support</li>
+      <li><strong>Zero commission on pickup orders</strong> placed through WeGetIt</li>
+      <li>Full control over menu items, pricing, availability, and hours</li>
+      <li>Order and payout reporting accessible at any time</li>
+    </ul>
+
+    <h2>5 · What You Indicate</h2>
+    <ul>
+      <li>Intent to list and fulfill delivery orders through WeGetIt upon launch in your market</li>
+      <li>Willingness to provide menu, pricing, and operating hours during onboarding</li>
+      <li>Openness to displaying WeGetIt materials in-store or participating in a launch promotion</li>
+    </ul>
+    <div class="callout"><strong>No exclusivity is requested or implied.</strong> You may continue operating on DoorDash, Uber Eats, Grubhub, your own website, or any other channel without restriction.</div>
+
+    <h2>6 · Nature of This Letter</h2>
+    <div class="nb">
+      <p style="margin-bottom:9px;"><strong>This Letter of Intent is non-binding.</strong> It expresses mutual interest and outlines terms the parties expect to formalize in a definitive agreement. It does not create a partnership, joint venture, agency relationship, or obligation to enter into any agreement.</p>
+      <p style="margin-bottom:9px;">No fees are owed and no services are provided under this letter. Either party may withdraw at any time, for any reason, with written notice and without liability.</p>
+      <p style="margin-bottom:0;">Commission tiers and terms are subject to a definitive written agreement executed by both parties prior to going live on the platform.</p>
+    </div>
+
+    <h2>7 · Confidentiality</h2>
+    <p>Commercial terms described in this letter are confidential. Neither party will disclose them to third parties except to advisors, employees, or investors with a need to know, or as required by law. This section survives withdrawal of this letter.</p>
+
+    <h2>8 · Governing Law</h2>
+    <p>This letter is governed by the laws of the State of Michigan, without regard to conflict-of-law principles.</p>
+
+    <h2>9 · Signature</h2>
+    <label class="affirm">
+      <input type="checkbox" name="affirmed" value="Yes" id="af" required>
+      <span>I am authorized to sign on behalf of the restaurant named above. I have read this Letter of Intent and understand it is <strong>non-binding</strong>, that nothing is owed, and that either party may withdraw at any time.</span>
+    </label>
+
+    <div class="sigwrap">
+      <label class="fl req" for="sig">Type your full legal name to sign</label>
+      <input type="text" id="sig" name="signature" required autocomplete="off">
+      <div class="sighint">Your typed name, today's date, and a timestamp are recorded with this submission.</div>
+      <input type="hidden" name="signed_at" id="signed_at">
+    </div>
+
+    <div class="err" id="err"></div>
+    <button type="submit" class="btn" id="submitbtn">Sign and Submit Letter of Intent</button>
+  </form>
+
+  <div class="foot">
+    WeGetIt · Dearborn, MI · wegetit.deliver@gmail.com<br>
+    Non-binding letter of intent. Not an offer, contract, or solicitation. Founding tier availability is limited and assigned in order of signed intent.
+  </div>
+</div>
+
+<div class="page done" id="done">
+  <div class="logo" style="margin-bottom:26px;">We<span>Get</span>It</div>
+  <div class="big">Received.</div>
+  <p>Your Letter of Intent is in. We'll be in touch about founding partner onboarding and next steps.</p>
+  <p style="font-size:13px;">A copy has been sent to your email for your records.</p>
+  <a href="https://calendly.com/wegetit-deliver/wegetit-founding-partner-onboarding" target="_blank" rel="noopener">Schedule Onboarding</a>
+</div>
+
+<script>
+  (function () {
+    var f   = document.getElementById('loiform');
+    var err = document.getElementById('err');
+    var btn = document.getElementById('submitbtn');
+
+    // Prefill reference code from ?id=
+    try {
+      var raw = (new URLSearchParams(location.search).get('id') || '').replace(/\D/g, '');
+      if (raw.length === 6) document.getElementById('f10').value = raw;
+    } catch (e) {}
+
+    function encode(data) {
+      return Object.keys(data)
+        .map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]); })
+        .join('&');
+    }
+
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var sig   = document.getElementById('sig').value.trim();
+      var owner = document.getElementById('f4').value.trim();
+
+      if (sig.length < 3) { err.textContent = 'Please type your full legal name to sign.'; return; }
+      if (owner && sig.toLowerCase().replace(/\s+/g,' ') !== owner.toLowerCase().replace(/\s+/g,' ')) {
+        if (!confirm('Your signature does not match the representative name entered above. Submit anyway?')) return;
+      }
+
+      document.getElementById('signed_at').value = new Date().toString();
+      err.textContent = '';
+      btn.disabled = true;
+      btn.textContent = 'Submitting\u2026';
+
+      // Gather all fields
+      var data = {};
+      new FormData(f).forEach(function (v, k) { data[k] = v; });
+
+      // 1) Store in Netlify Forms
+      fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: encode(data)
+      })
+      .then(function () {
+        // 2) Email a copy to the signer
+        if (typeof emailjs !== 'undefined') {
+          return emailjs.send('service_wegetit', 'template_loi', {
+            to_email:            data.email,
+            restaurant_name:     data.restaurant_legal_name || '',
+            dba:                 data.dba || '',
+            address:             data.address || '',
+            owner_name:          data.owner_name || '',
+            title:               data.title || '',
+            phone:               data.phone || '',
+            current_platforms:   data.current_platforms || '',
+            current_commission:  data.current_commission || '',
+            reference_code:      data.reference_code || '',
+            location_count:      data.location_count || '',
+            locations_covered:   data.locations_covered || '',
+            additional_locations:data.additional_locations || '',
+            tier:                data.tier || '',
+            signature:           data.signature || '',
+            signed_at:           data.signed_at || ''
+          }).catch(function (er) { console.warn('EmailJS:', er); });
+        }
+      })
+      .catch(function (er) { console.warn('Netlify:', er); })
+      .then(function () {
+        document.getElementById('doc').style.display  = 'none';
+        document.getElementById('done').style.display = 'block';
+        window.scrollTo(0, 0);
+      });
+    });
+  })();
+</script>
+</body>
+</html>
