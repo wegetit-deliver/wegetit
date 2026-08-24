@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WeGetIt — Restaurant Cost Analysis</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>if(typeof emailjs!=="undefined")emailjs.init("VheRjidR0uD9tBt-M");</script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -280,6 +282,52 @@ hr.div{border:none;border-top:1px solid var(--border);margin:26px 0;}
 <hr class="div">
 
 <!-- STEP 1 -->
+
+<!-- ENTRY -->
+<div id="contact-gate" style="border:1px solid var(--teal);background:rgba(61,191,184,0.04);padding:24px;margin-bottom:28px;">
+  <div class="slbl" style="margin-bottom:8px;">Enter Your Code</div>
+  <div class="ssub" style="margin-bottom:16px;">Your 6-digit code was emailed to you when you signed up. It links your numbers to your restaurant so we can pull them back up any time.</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <input type="text" id="g-id" placeholder="6-digit code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6"
+      style="flex:1;min-width:160px;background:var(--mid);border:1px solid var(--border);color:var(--white);font-family:'DM Mono',monospace;font-size:18px;letter-spacing:6px;text-align:center;padding:13px;outline:none;"
+      onkeydown="if(event.key==='Enter')unlockWithID()">
+    <button class="btn-p" onclick="unlockWithID()" style="margin-top:0;width:auto;padding:13px 28px;">Unlock \u2192</button>
+  </div>
+  <div id="g-err" style="color:var(--accent);font-size:12px;height:16px;font-family:'DM Mono',monospace;margin-top:8px;"></div>
+  <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:14px;font-size:12px;color:var(--muted);line-height:1.6;">
+    Don't have a code? <a href="/" style="color:var(--teal);text-decoration:none;border-bottom:1px solid var(--teal);">Sign up here</a> and we'll email it to you in seconds.
+  </div>
+</div>
+
+<!-- SESSION BANNER -->
+<div id="id-banner" style="display:none;border:1px solid var(--gold);background:rgba(245,166,35,0.06);padding:16px 20px;margin-bottom:24px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;">
+    <div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:4px;">Your Code</div>
+      <div id="id-value" style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:6px;color:var(--white);line-height:1;">\u2014</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="copyID()" id="copy-btn" style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;padding:9px 14px;border:1px solid var(--gold);background:none;color:var(--gold);cursor:pointer;">Copy</button>
+      <button onclick="textID()" style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;padding:9px 14px;border:1px solid var(--gold);background:none;color:var(--gold);cursor:pointer;">Text me</button>
+    </div>
+  </div>
+  <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(245,166,35,0.2);">
+    <div class="cq-lbl" style="font-size:12px;margin-bottom:5px;">Restaurant name <span style="color:var(--muted);font-weight:400;">\u00b7 so we know whose numbers these are</span></div>
+    <input type="text" id="g-rest" placeholder="Your restaurant name" oninput="restaurantMeta.rest=this.value"
+      style="width:100%;max-width:340px;background:var(--mid);border:1px solid var(--border);color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;padding:10px 13px;outline:none;">
+  </div>
+</div>
+
+<!-- LOCKED OVERLAY WRAPPER START -->
+<div id="calc-locked-wrap" style="position:relative;">
+<div id="lock-overlay" style="position:absolute;inset:0;z-index:50;background:rgba(8,8,8,0.72);backdrop-filter:blur(2.5px);display:flex;align-items:flex-start;justify-content:center;padding-top:80px;">
+  <div style="text-align:center;max-width:280px;">
+    <div style="font-size:34px;margin-bottom:10px;">🔒</div>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--teal);margin-bottom:8px;">Locked</div>
+    <div style="font-size:13px;color:var(--dim);line-height:1.65;">Enter your details above to unlock and run your numbers.</div>
+  </div>
+</div>
+
 <div class="slbl">Step 1 — Your Current Platforms</div>
 <div class="ssub" style="margin-bottom:14px;">Select every platform you're currently on. You can be on more than one.</div>
 
@@ -416,6 +464,8 @@ hr.div{border:none;border-top:1px solid var(--border);margin:26px 0;}
 
 <button class="btn-p" onclick="calculate()" style="margin-top:18px;">Calculate My True Cost →</button>
 
+</div><!-- end calc-locked-wrap -->
+
 <!-- STEP 3 RESULTS -->
 <div class="rsec" id="sec-results">
   <hr class="div">
@@ -539,6 +589,10 @@ hr.div{border:none;border-top:1px solid var(--border);margin:26px 0;}
 
   <!-- REPORT ACTIONS -->
   <div id="report-actions" style="display:none;margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+    <div class="slbl gold" style="margin-bottom:8px;">Next Step</div>
+    <a href="https://calendly.com/YOUR-CALENDLY-LINK" target="_blank" style="display:block;text-decoration:none;font-family:'DM Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:2px;padding:18px;border:none;background:var(--gold);color:var(--black);font-weight:600;text-align:center;margin-bottom:8px;">📅 Book Your Founding Partner Call</a>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:22px;text-align:center;font-style:italic;">Founding spots are limited. Lock yours in before the numbers change.</div>
+
     <div class="slbl">Save Your Numbers</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:12px;font-style:italic;">Close this tab and lose everything — or save it now.</div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
@@ -554,6 +608,17 @@ hr.div{border:none;border-top:1px solid var(--border);margin:26px 0;}
 
 
 <!-- ════════════════════ OMAR'S VIEW ════════════════════ -->
+<div id="omar-pin-gate" style="display:none;max-width:340px;margin:60px auto;text-align:center;">
+  <div class="slbl red" style="justify-content:center;">Restricted</div>
+  <div class="stitle" style="margin-bottom:6px;">Enter PIN</div>
+  <div class="ssub" style="margin:0 auto 18px;">Internal view. Not for restaurant display.</div>
+  <input type="password" id="pin-input" inputmode="numeric" maxlength="8" placeholder="• • • •"
+    style="width:100%;text-align:center;letter-spacing:8px;font-size:22px;padding:16px;background:var(--mid);border:1px solid var(--border);color:var(--white);outline:none;"
+    onkeydown="if(event.key===\'Enter\')checkPin()">
+  <div id="pin-err" style="color:var(--accent);font-size:12px;margin-top:10px;height:16px;font-family:\'DM Mono\',monospace;"></div>
+  <button class="btn-p" onclick="checkPin()" style="margin-top:6px;">Unlock →</button>
+</div>
+
 <div id="omar-view">
   <div class="stitle">FRP Strategy Analysis</div>
   <div class="ssub">Internal view — distribution, break-even scenarios, tier targeting, and launch gates.</div>
@@ -570,17 +635,18 @@ hr.div{border:none;border-top:1px solid var(--border);margin:26px 0;}
 
   <div class="snote"><strong>The math:</strong> You need 8-12 active restaurants to hit break-even. Out of 100 approached, you realistically sign 38-57. Break-even is achievable from your first 20-25 serious conversations if you target anchor Warren Ave restaurants first.</div>
 
-  <div class="slbl mt24">Break-Even by Tier Mix</div>
-  <div class="ssub" style="font-size:12px;color:var(--muted);margin-bottom:10px;">WeGetIt always keeps $1/order. What changes is driver base pay — which drives recruitment.</div>
+  <div class="slbl mt24">Driver Base Pay by Tier · $18.58 Benchmark Order</div>
+  <div class="ssub" style="font-size:12px;color:var(--muted);margin-bottom:10px;">WeGetIt always keeps $1/order. What changes is <strong>driver base pay</strong> — the only number we control and guarantee. Tips are separate, customer-controlled, and never counted in these figures.</div>
   <table class="stbl">
-    <thead><tr><th>Scenario</th><th>Avg Commission</th><th>Driver Base/Order</th><th>Driver Gross/Hr</th><th>WeGetIt Keeps</th><th>Break-Even</th></tr></thead>
+    <thead><tr><th>Scenario</th><th>Commission</th><th>Driver Base / Order</th><th>vs DoorDash Base</th><th>WeGetIt Keeps</th><th>Break-Even</th></tr></thead>
     <tbody>
-      <tr><td>All God Mode (40%)</td><td class="num">40%</td><td class="good">$7.26</td><td class="good">$33.03 + tips</td><td class="num">$1.00</td><td class="num">3,500/mo</td></tr>
-      <tr><td>FRP Blended (38%)</td><td class="num">38%</td><td class="good">$6.84</td><td class="good">$31.77 + tips</td><td class="num">$1.00</td><td class="num">3,500/mo</td></tr>
-      <tr><td>FRP Blended (35%)</td><td class="num">35%</td><td class="good">$6.20</td><td class="good">$29.85 + tips</td><td class="num">$1.00</td><td class="num">3,500/mo</td></tr>
-      <tr><td>FRP Blended (30%)</td><td class="num">30%</td><td class="warn">$5.13</td><td class="warn">$26.64 + tips</td><td class="num">$1.00</td><td class="num">3,500/mo</td></tr>
-      <tr><td>Standard 25% only</td><td class="num">25%</td><td class="warn">$4.06</td><td class="warn">$21.93 + tips</td><td class="num">$1.00</td><td class="num">3,500/mo</td></tr>
-      <tr class="srow"><td>Ideal Launch Mix (2-3 God Mode + 5-7 FRP 30-35% + 2-3 Standard)</td><td>~33%</td><td class="good">~$5.80</td><td class="good">~$28.40 + tips</td><td class="num">$1.00</td><td class="good">3,500/mo</td></tr>
+      <tr><td>DoorDash / UE benchmark</td><td class="num">30%+ fees</td><td class="bad">$2.00–4.00</td><td class="num">—</td><td class="num">—</td><td class="num">N/A</td></tr>
+      <tr><td>All God Mode (40%)</td><td class="num">40%</td><td class="good">$7.11</td><td class="good">+$3.11 to +$5.11</td><td class="num">$1.00</td><td class="num">3,500/mo</td></tr>
+      <tr><td>FRP Blended (38%)</td><td class="num">38%</td><td class="good">$6.73</td><td class="good">+$2.73 to +$4.73</td><td class="num">$1.00</td><td class="num">3,500/mo</td></tr>
+      <tr><td>FRP Blended (35%)</td><td class="num">35%</td><td class="good">$6.09</td><td class="good">+$2.09 to +$4.09</td><td class="num">$1.00</td><td class="num">3,500/mo</td></tr>
+      <tr><td>FRP Blended (30%)</td><td class="num">30%</td><td class="warn">$5.12</td><td class="warn">+$1.12 to +$3.12</td><td class="num">$1.00</td><td class="num">3,500/mo</td></tr>
+      <tr><td>Standard 25% only</td><td class="num">25%</td><td class="warn">$4.06</td><td class="warn">+$0.06 to +$2.06</td><td class="num">$1.00</td><td class="num">3,500/mo</td></tr>
+      <tr class="srow"><td>Ideal Launch Mix (2-3 God Mode + 5-7 FRP 30-35% + 2-3 Standard)</td><td>~33%</td><td class="good">~$5.75</td><td class="good">+$1.75 to +$3.75</td><td class="num">$1.00</td><td class="good">3,500/mo</td></tr>
     </tbody>
   </table>
 
@@ -624,19 +690,142 @@ hr.div{border:none;border-top:1px solid var(--border);margin:26px 0;}
 
 </div><!-- end omar-view -->
 
+<!-- QUICK NUMBERS FLOATING PANEL -->
+<div id="qn-panel" style="display:none;position:fixed;right:18px;bottom:18px;z-index:500;max-width:330px;">
+  <div id="qn-body" style="display:none;background:#0d0d0d;border:1px solid var(--teal);padding:16px 18px;margin-bottom:8px;max-height:70vh;overflow-y:auto;">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--teal);margin-bottom:12px;">Quick Numbers</div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <tr><td style="padding:5px 0;color:var(--muted);">Break-even</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--white);">3,500 orders/mo</td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted);">Orders/day needed</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--white);">117</td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted);">Restaurants needed</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--white);">8–12</td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted);">Orders/restaurant/day</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--white);">15 avg</td></tr>
+      <tr><td colspan="2" style="border-top:1px solid var(--border);padding-top:8px;"></td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted);">WeGetIt keeps/order</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--teal);">$1.00</td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted);">Driver base · God Mode</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--gold);">$7.11</td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted);">Driver base · 35%</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--gold);">$6.09</td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted);">Driver base · Standard</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--gold);">$4.06</td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted);">DoorDash driver base</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--accent);">$2.00–4.00</td></tr>
+      <tr><td colspan="2" style="border-top:1px solid var(--border);padding-top:8px;"></td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted);">Customer saves vs DD</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--teal);">$5.43/order</td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted);">Restaurant keeps (WGI)</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--white);">$15.05</td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted);">Restaurant keeps (DD)</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--accent);">$14.31</td></tr>
+      <tr><td colspan="2" style="border-top:1px solid var(--border);padding-top:8px;"></td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted);">Out of 100 approached</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--white);">38–57 sign</td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted);">God Mode candidates</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--white);">5–10</td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted);">LOIs before build</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--accent);">5 minimum</td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted);">Raise ask</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--white);">$75,000</td></tr>
+    </table>
+    <div style="font-size:10px;color:var(--muted);margin-top:12px;line-height:1.55;border-top:1px solid var(--border);padding-top:10px;">Driver figures are <strong style="color:var(--white);">base pay only</strong> on the $18.58 benchmark order. Tips excluded — customer-controlled, never guaranteed.</div>
+  </div>
+  <button onclick="toggleQN()" id="qn-btn" style="width:100%;font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;padding:12px 18px;border:1px solid var(--teal);background:#0d0d0d;color:var(--teal);cursor:pointer;">↑ Quick Numbers</button>
+</div>
+
 </div><!-- end page -->
 
 <script>
 // ── VIEW TOGGLE ──
+let restaurantID = null;
+let restaurantMeta = {};
+
+function applyCode(code) {
+  restaurantID = code;
+  restaurantMeta.id = code;
+  document.getElementById('id-value').textContent = code;
+  document.getElementById('id-banner').style.display = 'block';
+  document.getElementById('contact-gate').style.display = 'none';
+  document.getElementById('lock-overlay').style.display = 'none';
+  document.getElementById('g-err').textContent = '';
+  try { window.localStorage.setItem('wgi_last_code', code); } catch (e) {}
+}
+
+function unlockWithID() {
+  const raw = document.getElementById('g-id').value.trim().replace(/\D/g, '');
+  if (raw.length !== 6) {
+    document.getElementById('g-err').textContent = 'Enter your 6-digit code.';
+    return;
+  }
+  applyCode(raw);
+}
+
+function copyID() {
+  if (!restaurantID) return;
+  navigator.clipboard.writeText(restaurantID).then(() => {
+    const b = document.getElementById('copy-btn');
+    b.textContent = 'Copied';
+    setTimeout(() => { b.textContent = 'Copy'; }, 1600);
+  }).catch(() => {});
+}
+
+function textID() {
+  if (!restaurantID) return;
+  const msg = 'WeGetIt code: ' + restaurantID + ' \u2014 use this at wegetit.netlify.app/calculator.html to pull your numbers back up.';
+  window.open('sms:?body=' + encodeURIComponent(msg));
+}
+
+// Auto-unlock from email link: ?id=482917
+(function initFromURL() {
+  function boot() {
+    let code = null;
+    try {
+      const p = new URLSearchParams(window.location.search);
+      const raw = (p.get('id') || '').replace(/\D/g, '');
+      if (raw.length === 6) code = raw;
+      if (!code) {
+        const last = window.localStorage.getItem('wgi_last_code');
+        if (last && /^\d{6}$/.test(last)) code = last;
+      }
+    } catch (e) {}
+    if (code) applyCode(code);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+
+const OMAR_PIN = '2626';   // <<< CHANGE THIS to your own PIN
+let pinOK = false;
+
 function toggleView() {
   const rv = document.getElementById('restaurant-view');
   const ov = document.getElementById('omar-view');
+  const gate = document.getElementById('omar-pin-gate');
   const btn = document.getElementById('vtoggle-btn');
-  if (ov.style.display === 'block') {
-    ov.style.display = 'none'; rv.style.display = 'block'; btn.textContent = "Omar's View →";
+  const qn = document.getElementById('qn-panel');
+
+  const inOmar = ov.style.display === 'block' || gate.style.display === 'block';
+  if (inOmar) {
+    ov.style.display = 'none'; gate.style.display = 'none';
+    rv.style.display = 'block'; qn.style.display = 'none';
+    btn.textContent = "Omar's View →";
   } else {
-    ov.style.display = 'block'; rv.style.display = 'none'; btn.textContent = '← Restaurant View';
+    rv.style.display = 'none';
+    btn.textContent = '← Restaurant View';
+    if (pinOK) { ov.style.display = 'block'; qn.style.display = 'block'; }
+    else { gate.style.display = 'block'; setTimeout(()=>document.getElementById('pin-input').focus(), 100); }
   }
+}
+
+function checkPin() {
+  const val = document.getElementById('pin-input').value;
+  if (val === OMAR_PIN) {
+    pinOK = true;
+    document.getElementById('omar-pin-gate').style.display = 'none';
+    document.getElementById('omar-view').style.display = 'block';
+    document.getElementById('qn-panel').style.display = 'block';
+    document.getElementById('pin-err').textContent = '';
+    document.getElementById('pin-input').value = '';
+  } else {
+    document.getElementById('pin-err').textContent = 'Incorrect PIN';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').focus();
+  }
+}
+
+function toggleQN() {
+  const body = document.getElementById('qn-body');
+  const btn = document.getElementById('qn-btn');
+  const open = body.style.display === 'block';
+  body.style.display = open ? 'none' : 'block';
+  btn.textContent = open ? '↑ Quick Numbers' : '↓ Close';
 }
 
 // ── CHECKLIST ──
@@ -1243,7 +1432,9 @@ function generateTextSummary() {
   if (!D.totalWkRev) return 'No data entered yet.';
   const {today, adsDesc, refDesc, phases} = buildReportData();
   const line = '─'.repeat(32);
-  let txt = `WeGetIt · Restaurant Cost Analysis\n${today}\n${line}\n`;
+  let txt = `WeGetIt · Restaurant Cost Analysis\n${today}\n`;
+  if (restaurantID) txt += `ID: ${restaurantID}` + (restaurantMeta.rest ? ` · ${restaurantMeta.rest}` : '') + `\n`;
+  txt += `${line}\n`;
   txt += `YOUR TRUE COST\n`;
   txt += `All-in rate: ${fp(D.trueRate)}\n`;
   txt += `You pay: ${fmt(D.totalWkCost)}/wk (${fmt(D.totalWkCost*52)}/yr)\n`;
