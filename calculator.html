@@ -260,10 +260,17 @@ hr.div{border:none;border-top:1px solid var(--border);margin:26px 0;}
   <input type="text" name="restaurant_name">
   <input type="text" name="email">
   <input type="text" name="platforms">
-  <input type="text" name="commission_rates">
-  <input type="text" name="weekly_delivery_orders">
+  <input type="text" name="dd_commission">
+  <input type="text" name="ue_commission">
+  <input type="text" name="gh_commission">
+  <input type="text" name="dd_orders">
+  <input type="text" name="ue_orders">
+  <input type="text" name="gh_orders">
+  <input type="text" name="dd_pickup">
+  <input type="text" name="ue_pickup">
+  <input type="text" name="gh_pickup">
   <input type="text" name="avg_order_value">
-  <input type="text" name="weekly_pickup_orders">
+  <input type="text" name="total_weekly_orders">
   <input type="text" name="weekly_revenue">
   <input type="text" name="ads_spend_weekly">
   <input type="text" name="refunds_weekly">
@@ -945,35 +952,49 @@ function captureToNetlify(tierLabel) {
     if (!D || !D.totalWkRev) return;
     var pd = D.platData || {};
     var names = { dd: 'DoorDash', ue: 'Uber Eats', gh: 'Grubhub' };
-    var plats = [], rates = [], ords = [], aovs = [], pus = [];
+    var plats = [];
+    ['dd','ue','gh'].forEach(function (k) { if (pd[k]) plats.push(names[k]); });
+
+    function rate(k) { return pd[k] ? pd[k].rate : ''; }
+    function ord(k)  { return pd[k] ? pd[k].ord  : ''; }
+    function pick(k) { return pd[k] ? pd[k].pu   : ''; }
+    function r2(n)   { return Math.round((n || 0) * 100) / 100; }
+
+    var totalOrders = 0, totalPickup = 0;
     ['dd','ue','gh'].forEach(function (k) {
       if (!pd[k]) return;
-      plats.push(names[k]);
-      rates.push(names[k] + ' ' + pd[k].rate + '%');
-      ords.push(names[k] + ' ' + pd[k].ord);
-      aovs.push(names[k] + ' $' + (pd[k].aov || 0));
-      pus.push(names[k] + ' ' + pd[k].pu);
+      totalOrders += (pd[k].ord || 0);
+      totalPickup += (pd[k].pu || 0);
     });
+    var avgAOV = totalOrders > 0 ? r2(D.totalRev / totalOrders) : 0;
+
     var data = {
       'form-name': 'calculator',
       reference_code: restaurantID || '',
       restaurant_name: (restaurantMeta && restaurantMeta.rest) || '',
       email: (restaurantMeta && restaurantMeta.email) || '',
       platforms: plats.join(', '),
-      commission_rates: rates.join(' | '),
-      weekly_delivery_orders: ords.join(' | '),
-      avg_order_value: aovs.join(' | '),
-      weekly_pickup_orders: pus.join(' | '),
-      weekly_revenue: '$' + Math.round(D.totalWkRev),
-      ads_spend_weekly: '$' + Math.round(D.wkAds || 0),
-      refunds_weekly: '$' + Math.round(D.wkRef || 0),
-      other_fees_weekly: '$' + Math.round(D.wkOth || 0),
-      total_weekly_cost: '$' + Math.round(D.totalWkCost),
-      true_cost_rate: (D.trueRate || 0).toFixed(1) + '%',
-      weekly_keep: '$' + Math.round(D.wkKeep),
-      annual_keep: '$' + Math.round(D.wkKeep * 52),
+      dd_commission: rate('dd'),
+      ue_commission: rate('ue'),
+      gh_commission: rate('gh'),
+      dd_orders: ord('dd'),
+      ue_orders: ord('ue'),
+      gh_orders: ord('gh'),
+      dd_pickup: pick('dd'),
+      ue_pickup: pick('ue'),
+      gh_pickup: pick('gh'),
+      avg_order_value: avgAOV,
+      total_weekly_orders: totalOrders + totalPickup,
+      weekly_revenue: r2(D.totalWkRev),
+      ads_spend_weekly: r2(D.wkAds),
+      refunds_weekly: r2(D.wkRef),
+      other_fees_weekly: r2(D.wkOth),
+      total_weekly_cost: r2(D.totalWkCost),
+      true_cost_rate: r2(D.trueRate),
+      weekly_keep: r2(D.wkKeep),
+      annual_keep: r2(D.wkKeep * 52),
       tier_viewed: tierLabel || '',
-      submitted_at: new Date().toString()
+      submitted_at: new Date().toISOString()
     };
     var body = Object.keys(data).map(function (k) {
       return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]);
