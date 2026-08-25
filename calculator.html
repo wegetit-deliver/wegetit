@@ -248,6 +248,69 @@ hr.div{border:none;border-top:1px solid var(--border);margin:26px 0;}
 .inote-b strong{color:var(--white);}
 .mt16{margin-top:16px;}
 .mt24{margin-top:24px;}
+
+/* ── MOBILE: stack comparison rows ── */
+@media(max-width:600px){
+  html,body{overflow-x:hidden;}
+  .page{padding:24px 14px 70px;}
+
+  /* order summary: own line, no vertical wrap */
+  .cmp-hdr{
+    grid-template-columns:1fr 1fr !important;
+    gap:4px !important;
+    padding:10px 12px !important;
+  }
+  .cmp-hdr span:first-child{
+    grid-column:1 / -1;
+    font-size:8.5px !important;
+    line-height:1.5;
+    padding-bottom:6px;
+    border-bottom:1px solid var(--border);
+    margin-bottom:4px;
+  }
+  .cmp-hdr span:nth-child(3){display:none;}
+  .cmp-hdr .them{text-align:left;}
+  .cmp-hdr .us{text-align:right;}
+
+  /* rows: label full width, values beneath */
+  .cmp-row{
+    grid-template-columns:1fr auto !important;
+    gap:2px 8px !important;
+    padding:11px 12px !important;
+  }
+  .cmp-row .rl{
+    grid-column:1 / -1;
+    font-size:12.5px !important;
+    line-height:1.45;
+    margin-bottom:3px;
+  }
+  .cmp-row .ar{display:none;}
+  .cmp-row .tv{
+    grid-column:1;
+    text-align:left !important;
+    font-size:13px !important;
+  }
+  .cmp-row .uv{
+    grid-column:2;
+    text-align:right !important;
+    font-size:13px !important;
+  }
+  .cmp-row.ttl .tv,.cmp-row.ttl .uv{font-size:15px !important;}
+
+  /* phase toggle buttons */
+  #period-toggle-wrap button{font-size:8px !important;padding:10px 3px !important;}
+
+  /* callouts */
+  .sav-split{gap:16px !important;}
+  .sav-big{font-size:38px !important;}
+  .cbig{font-size:44px !important;}
+  .stitle{font-size:20px !important;}
+
+  /* tables scroll instead of overflow */
+  .orders-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .stbl{font-size:11px;}
+}
+
 </style>
 </head>
 <body>
@@ -1319,7 +1382,7 @@ function buildCompareTable(tier, w, useRate) {
   const totalOrders = Object.values(_pd).reduce((a,v) => a + (v.ord||0), 0);
   const totalPickupOrders = Object.values(_pd).reduce((a,v) => a + (v.pu||0), 0);
   const avgAOV = totalOrders > 0 ? (D.totalRev / totalOrders) : 0;
-  const orderSummary = `${totalOrders} delivery + ${totalPickupOrders} pickup = ${totalOrders + totalPickupOrders} orders/wk · $${avgAOV.toFixed(0)} avg`;
+  const orderSummary = `${totalOrders + totalPickupOrders} orders/wk · ${totalOrders} delivery, ${totalPickupOrders} pickup · $${avgAOV.toFixed(0)} avg`;
 
   function cRow(lbl, tv, uv, isTotal) {
     return `<div class="cmp-row ${isTotal ? 'ttl' : ''}">
