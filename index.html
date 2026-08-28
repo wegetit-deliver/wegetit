@@ -73,13 +73,13 @@
   .compare-cell.us.c::before { color: var(--accent); }
   .compare-cell.us.r::before { color: var(--teal); }
   /* PROOF */
-  .proof { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px; }
-  .proof-item { display: flex; flex-direction: column; gap: 2px; }
-  .proof-num { font-family: 'Bebas Neue', sans-serif; font-size: 30px; line-height: 1.05; letter-spacing: 1px; }
+  .proof { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 40px; }
+  .proof-item { display: flex; flex-direction: column; gap: 4px; padding: 18px 10px; text-align: center; align-items: center; }
+  .proof-num { font-family: 'Bebas Neue', sans-serif; font-size: 42px; line-height: 1.05; letter-spacing: 1px; }
   .proof-num.c { color: var(--accent); }
   .proof-num.d { color: var(--accent2); }
   .proof-num.r { color: var(--teal); }
-  .proof-label { font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); line-height: 1.4; }
+  .proof-label { font-family: 'DM Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); line-height: 1.4; }
   /* FORM */
   .form-wrap { display: flex; gap: 0; max-width: 540px; }
   .form-wrap input[type="email"] { flex: 1; background: var(--mid); border: 1px solid var(--border); border-right: none; color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 17px; padding: 20px 22px; outline: none; border-radius: 0; -webkit-appearance: none; }
@@ -140,9 +140,10 @@
     .hero-sub { font-size: 15.5px; }
     .hero-sub2 { font-size: 13.5px; margin-bottom: 18px; }
     .step-text { font-size: 14.5px; }
-    .proof { gap: 10px; }
-    .proof-num { font-size: 22px; }
-    .proof-label { font-size: 7.5px; letter-spacing: 1px; }
+    .proof { gap: 7px; }
+    .proof-item { padding: 16px 6px; }
+    .proof-num { font-size: 32px; }
+    .proof-label { font-size: 8.5px; letter-spacing: 0.8px; }
     .faq-section { padding: 40px 20px 48px; }
     .footer { padding: 20px; flex-direction: column; align-items: flex-start; }
   }
